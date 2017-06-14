@@ -69,19 +69,37 @@ float density(vec3 p) {
 	return exp(-(length(p) - R_INNER) * SCALE_HEIGHT);
 }
 
-vec3 scatter(vec3 p1, vec3 cam_dir, vec3 s_ori, float rad) {
-	vec3 p2 = sphere_int(p1, cam_dir, s_ori, rad);
+float out_scatter(vec3 p1, vec3 p2) {
 	vec3 step = (p2 - p1) / FNUM_STEPS;
 	vec3 p = p1 + step * 0.5;
-	vdebug = p2;
-	//vec3 sum = vec3(0);
-	float sum = 0;
+
+	float sum = 0.0;
 	for(int i = 0; i < NUM_STEPS; i++) {
 		sum += density(p);
 		p += step;
 	}
 	sum *= length(step) * SCALE_LENGTH;
-	debug = sum;
+
+	return sum;
+}
+
+vec3 scatter(vec3 p1, vec3 cam_dir, vec3 s_ori, float rad) {
+	vec3 p2 = sphere_int(p1, cam_dir, s_ori, rad);
+	vec3 step = (p2 - p1) / FNUM_STEPS;
+	vec3 p = p1 + step * 0.5;
+	vdebug = p2;
+	vec3 sum = vec3(0);
+	//float sum = 0;
+	for(int i = 0; i < NUM_STEPS; i++) {
+		vec3 pc = sphere_int(p, light_direction, vec3(0), R);
+
+		float n = (out_scatter(pc, p) + out_scatter(p, p2)) * (PI * 4.0);
+
+		sum += density(p) * exp(-n * ( K_R * C_R + K_M));
+		p += step;
+	}
+	sum *= length(step) * SCALE_LENGTH;
+
 	float c = dot(cam_dir, normalize(light_direction));
 	float cc = c*c;
 	debug = phase_mie(G_M, c, cc);
