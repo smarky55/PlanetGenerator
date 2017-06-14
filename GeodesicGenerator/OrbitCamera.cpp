@@ -11,7 +11,7 @@ void OrbitCamera::updatePosition() {
 OrbitCamera::OrbitCamera(glm::vec3 center) {
 	HorizontalAngle = 0.0f;
 	VerticalAngle = 0.0f;
-	Distance = 2.0f;
+	Distance = 2.5f;
 
 	MouseSpeed /= 2;
 

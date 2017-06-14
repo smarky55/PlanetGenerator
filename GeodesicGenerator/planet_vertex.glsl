@@ -10,6 +10,8 @@ uniform vec3 camera_position;
 uniform vec3 light_direction;
 
 out vec3 v_colour;
+out vec3 vertex_worldspace;
+out vec3 vertex_scatter;
 out vec3 normal_worldspace;
 out vec3 camera_direction;
 out float debug;
@@ -28,7 +30,7 @@ const float PI = 3.14159265359;
 const float FNUM_STEPS = 10.0;
 const int NUM_STEPS = 10;
 
-const float R = 1.5;
+const float R = 1.1;
 const float R_INNER = 0.99;
 const float SCALE_HEIGHT = 1.0 / (0.25 * (R - R_INNER));
 const float SCALE_LENGTH = 1.0 / (R - R_INNER);
@@ -103,7 +105,7 @@ vec3 scatter(vec3 p1, vec3 cam_dir, vec3 s_ori, float rad) {
 	float c = dot(cam_dir, normalize(light_direction));
 	float cc = c*c;
 	debug = phase_mie(G_M, c, cc);
-	return (K_R * C_R * phase_rayleigh(cc) + K_M * phase_mie(G_M, c, cc)) * sum;
+	return (K_R * C_R * phase_rayleigh(cc) + K_M * phase_mie(G_M, c, cc)) * sum * 5;
 }
 
 void main() {
@@ -111,9 +113,12 @@ void main() {
 
 	normal_worldspace = normalize(M * vec4(vertex_normal, 0)).xyz;
 
-	vec3 vertex_worldspace = (M * vec4(vertex_position, 1)).xyz;
+	vertex_worldspace = (M * vec4(vertex_position, 1)).xyz;
 
 	camera_direction = normalize(camera_position - vertex_worldspace);
-
-	v_colour = vertex_colour * (1 + scatter(vertex_worldspace, camera_direction, vec3(0), R));
+	//v_colour = scatter(vertex_worldspace, camera_direction, vec3(0), R);
+	//float n = out_scatter(vertex_worldspace, sphere_int(vertex_worldspace, camera_direction, vec3(0), R))
+	//	+ out_scatter(vertex_worldspace, sphere_int(vertex_worldspace, light_direction, vec3(0), R));
+	v_colour = vertex_colour;
+	vertex_scatter = scatter(vertex_worldspace, camera_direction, vec3(0), R);
 }

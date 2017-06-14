@@ -175,7 +175,7 @@ int main() {
 	};*/
 
 	//Geodesic geo = Geodesic(icos, isInd, 6);
-	Planet geo = Planet(75,6);
+	Planet geo = Planet(76,6);
 
 	/*for(size_t i = 0; i < 20; i++) {
 		tesselate(icos, isInd, 0, 6);

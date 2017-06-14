@@ -81,7 +81,7 @@ Planet::~Planet() {
 
 void Planet::draw(GLuint programID, Camera* camera) {
 	//glm::rotate(-acos(glm::dot(Vertices[0], glm::vec3(0,1,0))), glm::vec3(1,0,0)) *
-	glm::mat4 model =  glm::translate(glm::vec3(0));
+	glm::mat4 model = glm::rotate(((float)glfwGetTime() * 2 * glm::pi<float>())/24, glm::vec3(0,1,0)) * glm::translate(glm::vec3(0));
 	glm::mat4 view = camera->getViewMatrix();
 	glm::mat4 projection = camera->getProjectionMatrix();
 	glm::mat4 MVP = projection * view * model;

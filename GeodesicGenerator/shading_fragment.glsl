@@ -19,6 +19,6 @@ void main(){
     float cos_alpha = clamp(dot(reflection_direction, camera_direction), 0, 1);
     
 	color = (v_colour * light_colour * light_power * cos_theta)
-            + v_colour * light_colour * light_power * pow(cos_alpha, 5) * 0.3
+            + v_colour * light_colour * light_power * pow(cos_alpha, 5) * cos_theta * 0.3
             + v_colour * light_colour * 0.1;
 }
