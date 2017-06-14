@@ -15,10 +15,10 @@
 #include "controls.h"
 #include "Noise3d.h"
 #include "Planet.h"
-#include "Camera.h"
+#include "OrbitCamera.h"
 
 
-typedef glm::vec3 vec3;
+/* typedef glm::vec3 vec3;
 const double ic_a = 0.52573111211913360602566908484789;
 const double ic_b = 0.85065080835203993218154049706302;
 std::vector<vec3> icos = {vec3(0, ic_a, ic_b), vec3(0, ic_a, -ic_b), vec3(0, -ic_a, ic_b), vec3(0, -ic_a, -ic_b),
@@ -48,12 +48,18 @@ std::vector<unsigned> isInd = {
 	3,7,11,
 	7,9,11,
 	7,2,9
-};
+}; */
 
+
+Camera* camera;
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
+}
+
+static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+	static_cast<OrbitCamera*>(camera)->distanceOffset(yoffset*-0.2);
 }
 
 //void tesselate(std::vector<glm::vec3>& vertices, std::vector<unsigned>& indices, size_t face, unsigned depth = 0) {
@@ -209,7 +215,11 @@ int main() {
 	*/
 
 	//glfwSetCursorPos(window, 1024 / 2, 786 / 2);
-	Camera camera = Camera();
+	//Camera camera = Camera();
+	OrbitCamera cam = OrbitCamera(glm::vec3(0));
+	camera = &cam;
+
+	glfwSetScrollCallback(window, scroll_callback);
 
 	double lastTime, currentTime, deltaTime;
 	double acc = 0;
@@ -233,7 +243,7 @@ int main() {
 		glUseProgram(programID);
 		
 		//computeMatrices();
-		camera.update();
+		camera->update();
 
 		/* glm::mat4 model = glm::rotate(-acos(glm::dot(geo.Vertices[0], glm::vec3(0,1,0))), glm::vec3(1,0,0)) * glm::translate(glm::vec3(0));
 		glm::mat4 view = getViewMatrix();

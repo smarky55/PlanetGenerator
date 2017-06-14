@@ -26,6 +26,6 @@ public:
 	//std::vector<glm::vec3> Normals;
 	std::vector<unsigned> Indices;
 
-	void draw(GLuint programID, Camera& camera);
+	void draw(GLuint programID, Camera* camera);
 };
 

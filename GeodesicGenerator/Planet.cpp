@@ -79,11 +79,11 @@ Planet::Planet(size_t seed = 0, unsigned depth=0) : mesh(seed) {
 Planet::~Planet() {
 }
 
-void Planet::draw(GLuint programID, Camera& camera) {
+void Planet::draw(GLuint programID, Camera* camera) {
 	//glm::rotate(-acos(glm::dot(Vertices[0], glm::vec3(0,1,0))), glm::vec3(1,0,0)) *
 	glm::mat4 model =  glm::translate(glm::vec3(0));
-	glm::mat4 view = camera.getViewMatrix();
-	glm::mat4 projection = camera.getProjectionMatrix();
+	glm::mat4 view = camera->getViewMatrix();
+	glm::mat4 projection = camera->getProjectionMatrix();
 	glm::mat4 MVP = projection * view * model;
 
 	GLuint vertPosID, colourPosID, mvpID;
@@ -108,7 +108,7 @@ void Planet::draw(GLuint programID, Camera& camera) {
 	glUniform3fv(lightDirID, 1, &lightDirection[0]);
 	glUniform3fv(lightColID, 1, &lightColour[0]);
 	glUniform1f(lightPowID, lightPower);
-	glUniform3fv(camPosID, 1, &(camera.getPosition())[0]);
+	glUniform3fv(camPosID, 1, &(camera->getPosition())[0]);
 
 	glEnableVertexAttribArray(vertPosID);
 	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);

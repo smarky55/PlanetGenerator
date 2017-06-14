@@ -11,7 +11,25 @@ Camera::Camera() {
 	BaseSpeed = 3.0f;
 	MouseSpeed = 0.005f;
 
-	glfwSetCursorPos(Window, 1024 / 2, 786 / 2);
+	int width, height;
+	glfwGetWindowSize(Window, &width, &height);
+
+	glfwSetCursorPos(Window, width / 2., height / 2.);
+}
+
+Camera::Camera(glm::vec3 position, float horizontalAngle, float verticalAngle, float fov, float baseSpeed, float mouseSpeed) {
+	Window = glfwGetCurrentContext();
+	Position = position;
+	HorizontalAngle = horizontalAngle;
+	VerticalAngle = verticalAngle;
+	FoV = fov;
+	BaseSpeed = baseSpeed;
+	MouseSpeed = mouseSpeed;
+
+	int width, height;
+	glfwGetWindowSize(Window, &width, &height);
+
+	glfwSetCursorPos(Window, width / 2., height / 2.);
 }
 
 
