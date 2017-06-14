@@ -11,7 +11,7 @@ public:
 	~OrbitCamera();
 
 	void update() override;
-	void distanceOffset(float offset) { Distance += offset;
+	void distanceOffset(float offset) { Distance += offset*-0.2 * (Distance - 1.0)/2;
 										Distance = glm::max(Distance, 1.1f);
 	}
 };

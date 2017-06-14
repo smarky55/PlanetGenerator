@@ -59,7 +59,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 }
 
 static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
-	static_cast<OrbitCamera*>(camera)->distanceOffset(yoffset*-0.2);
+	static_cast<OrbitCamera*>(camera)->distanceOffset(yoffset);
 }
 
 //void tesselate(std::vector<glm::vec3>& vertices, std::vector<unsigned>& indices, size_t face, unsigned depth = 0) {
@@ -98,8 +98,8 @@ int main() {
 	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 
 	GLFWwindow * window;
-	int width = 1024;
-	int height = 786;
+	int width = 1600;
+	int height = 900;
 	window = glfwCreateWindow(width, height, "Terrain View", NULL, NULL);
 
 	if(window == NULL) {
