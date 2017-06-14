@@ -9,12 +9,15 @@ uniform mat4 M;
 uniform vec3 camera_position;
 uniform vec3 light_direction;
 uniform vec3 light_colour;
+uniform float light_power;
 
 out vec3 v_colour;
 out vec3 vertex_worldspace;
 out vec3 normal_worldspace;
 out vec3 camera_direction;
 out vec3 scatter_colour;
+out float fdebug;
+out vec3 vdebug;
 
 const float K_R = 0.166;
 const float K_M = 0.0025;
@@ -27,8 +30,8 @@ const float PI = 3.14159265359;
 const float FNUM_STEPS = 10.0;
 const int NUM_STEPS = 10;
 
-const float R = 1.5;
-const float R_INNER = 1.0;
+const float R = 1.2;
+const float R_INNER = 0.99;
 const float SCALE_HEIGHT = 1.0/(0.25 * (R - R_INNER));
 const float SCALE_LENGTH = 1.0/(R - R_INNER);
 
@@ -36,7 +39,7 @@ const float SCALE_LENGTH = 1.0/(R - R_INNER);
 vec3 sphere_intersect(vec3 ray_origin, vec3 ray_direction, vec3 sphere_origin, float radius){
 	vec3 L = sphere_origin - ray_origin;
 	float t_ca = dot(L, ray_direction);
-	if(t_ca < 0) return vec3(0,0,0);
+	if(t_ca < 0) return vec3(10000,10000,10000);
 
 	float dd = dot(L, L) - t_ca * t_ca;
 	float t_hc = sqrt(radius*radius - dd);
@@ -72,6 +75,8 @@ float out_scatter(vec3 p1, vec3 p2){
 		sum += density(v);
 		v += step;
 	}
+	sum *= length(step) * SCALE_LENGTH;
+	vdebug = vec3(max(sum, vdebug.x), max(length(step), vdebug.y), 0);
 	return 4.0 * PI * sum;
 }
 
@@ -80,22 +85,24 @@ vec3 in_scatter(vec3 p1, vec3 p2, vec3 sun_direction){
 	vec3 p = p1 + step * 0.5;
 
 	vec3 sphere_origin = (M*vec4(0,0,0,1)).xyz;
-	float sphere_radius = length(sphere_origin - (M * vec4(vertex_position, 1)).xyz);
+	float sphere_radius = 1.5 * length(sphere_origin - (M * vec4(vertex_position, 1)).xyz);
 
 	vec3 sum = vec3(0.0);
+	
 	for(int i = 0; i <  NUM_STEPS; i++){
-		vec3 pc = sphere_intersect(p+sun_direction, -sun_direction, sphere_origin, sphere_radius);
+		vec3 pc = sphere_intersect(p+ sun_direction*50.0, -sun_direction, sphere_origin, sphere_radius);
 		
 		float n = out_scatter(pc, p) + out_scatter(p, p2); 
-
 		sum += density(p) * exp(-n * (K_R * C_R + K_M));
 		p += step;
 	}
+	//vdebug = sum;
+	sum *= length(step) * SCALE_LENGTH;
 
 	float cos = dot(normalize(p2 -p1), normalize(sun_direction));
 	float cc = cos * cos;
 
-	return sum * ( K_R * C_R * phase_reyleigh( cc ) + K_M * phase_mie( G_M, cos, cc ) );
+	return sum * ( K_R * C_R * phase_reyleigh( cc ) + K_M * phase_mie( G_M, cos, cc ) ) * 50;
 }
 
 void main(){
@@ -108,7 +115,8 @@ void main(){
     camera_direction = normalize(camera_position - vertex_worldspace);
     
     //light_direction = light_position - (M * vec4(vertex_position, 1)).xyz;
-    
-	scatter_colour = light_colour * in_scatter(vertex_worldspace, sphere_intersect(camera_position, camera_direction, (M*vec4(0,0,0,1)).xyz, length((M*vec4(0,0,0,1)).xyz- vertex_worldspace)), light_direction);
+	//vdebug = sphere_intersect(camera_position, -camera_direction, vec3(0, 0, 0), 1.5);
+	//vdebug = sphere_intersect(vertex_worldspace + light_direction*50.0, -light_direction, vec3(0, 0, 0), 1.5);
+	scatter_colour = in_scatter(vertex_worldspace,1.5* sphere_intersect(camera_position, -camera_direction, (M*vec4(0,0,0,1)).xyz, length((M*vec4(0,0,0,1)).xyz- vertex_worldspace)), light_direction);
 	v_colour = vertex_colour;
 }

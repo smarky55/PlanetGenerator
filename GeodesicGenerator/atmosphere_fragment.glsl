@@ -5,6 +5,8 @@ in vec3 vertex_worldspace;
 in vec3 normal_worldspace;
 in vec3 camera_direction;
 in vec3 scatter_colour;
+in float fdebug;
+in vec3 vdebug;
 
 uniform vec3 light_direction;
 uniform vec3 light_colour;
@@ -17,7 +19,7 @@ const float PI = 3.14159265359;
 const float FNUM_STEPS = 10.0;
 const int NUM_STEPS = 10;
 
-const float R = 1.5;
+const float R = 1.2;
 const float R_INNER = 1.0;
 const float SCALE_HEIGHT = 1.0/(0.25 * (R - R_INNER));
 const float SCALE_LENGTH = 1.0/(R - R_INNER);
@@ -55,5 +57,7 @@ void main(){
 	color = (v_colour * light_colour * light_power * cos_theta)
             + v_colour * light_colour * light_power * pow(cos_alpha, 5) * 0.3
             + v_colour * light_colour * 0.1;
-	color = scatter_colour;
+	color = scatter_colour;// +color;
+	//color = vec3(fdebug);
+	color = vdebug;
 }
