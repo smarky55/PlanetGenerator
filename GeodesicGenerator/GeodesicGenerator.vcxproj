@@ -161,6 +161,7 @@
     <ClCompile Include="Geodesic.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Noise3d.cpp" />
+    <ClCompile Include="OrbitCamera.cpp" />
     <ClCompile Include="Planet.cpp" />
     <ClCompile Include="xxhash.c" />
   </ItemGroup>
@@ -171,6 +172,7 @@
     <ClInclude Include="FaceTree.h" />
     <ClInclude Include="Geodesic.h" />
     <ClInclude Include="Noise3d.h" />
+    <ClInclude Include="OrbitCamera.h" />
     <ClInclude Include="Planet.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="shaders.h" />
@@ -184,6 +186,14 @@
     <None Include="atmosphere_vertex.glsl" />
     <None Include="basic_fragment.glsl" />
     <None Include="basic_vertex.glsl" />
+    <None Include="planet_fragment.glsl">
+      <SubType>
+      </SubType>
+    </None>
+    <None Include="planet_vertex.glsl">
+      <SubType>
+      </SubType>
+    </None>
     <None Include="shading_fragment.glsl" />
     <None Include="shading_vertex.glsl" />
   </ItemGroup>

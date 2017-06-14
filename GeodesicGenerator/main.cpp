@@ -131,7 +131,7 @@ int main() {
 
 	//GLuint programID = LoadShaders("basic_vertex.glsl", "basic_fragment.glsl");
 	//GLuint programID = LoadShaders("shading_vertex.glsl", "shading_fragment.glsl");
-	GLuint programID = LoadShaders("atmosphere_vertex.glsl", "atmosphere_fragment.glsl");
+	GLuint programID = LoadShaders("planet_vertex.glsl", "planet_fragment.glsl");
 
 	/*float cubeVertices[] = {
 		-1, -1, -1,
@@ -169,7 +169,7 @@ int main() {
 	};*/
 
 	//Geodesic geo = Geodesic(icos, isInd, 6);
-	Planet geo = Planet(75,1);
+	Planet geo = Planet(75,6);
 
 	/*for(size_t i = 0; i < 20; i++) {
 		tesselate(icos, isInd, 0, 6);

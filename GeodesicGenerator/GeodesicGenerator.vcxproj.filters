@@ -42,6 +42,9 @@
     <ClCompile Include="FaceTree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="OrbitCamera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="controls.h">
@@ -74,6 +77,9 @@
     <ClInclude Include="FaceTree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="OrbitCamera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="GeodesicGenerator.rc">
@@ -97,6 +103,12 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="atmosphere_fragment.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="planet_vertex.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="planet_fragment.glsl">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
