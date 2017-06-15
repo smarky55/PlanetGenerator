@@ -77,6 +77,13 @@ Planet::Planet(size_t seed = 0, unsigned depth=0) : mesh(seed) {
 
 
 Planet::~Planet() {
+	for each (FaceTree* faceTree in Faces) {
+		delete faceTree;
+	}
+	glDeleteBuffers(1, &VertexBuffer);
+	glDeleteBuffers(1, &ColourBuffer);
+	glDeleteBuffers(1, &NormalBuffer);
+	glDeleteBuffers(1, &IndexBuffer);
 }
 
 void Planet::draw(GLuint programID, Camera* camera) {

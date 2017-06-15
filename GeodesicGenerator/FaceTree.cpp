@@ -34,10 +34,12 @@ FaceTree::FaceTree(Mesh* mesh, unsigned i1, unsigned i2, unsigned i3) {
 }
 
 FaceTree::~FaceTree() {
-	delete(FaceA);
-	delete(FaceB);
-	delete(FaceC);
-	delete(FaceD);
+	if(FaceA != nullptr) {
+		delete FaceA;
+		delete FaceB;
+		delete FaceC;
+		delete FaceD;
+	}
 }
 
 void FaceTree::getFaces(std::vector<FaceTree*>& faces, unsigned depth) {

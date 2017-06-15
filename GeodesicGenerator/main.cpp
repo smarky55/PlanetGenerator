@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include <Windows.h>
+#include <cstdlib>
 
 #include <gl\glew.h>
 #include <GLFW\glfw3.h>
@@ -52,10 +53,15 @@ std::vector<unsigned> isInd = {
 
 
 Camera* camera;
+Planet* geo;
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-	if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+	if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
+	} else if(key == GLFW_KEY_R && action == GLFW_PRESS) {
+		delete geo;
+		geo = new Planet(rand(), 6);
+	}
 }
 
 static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
@@ -175,7 +181,7 @@ int main() {
 	};*/
 
 	//Geodesic geo = Geodesic(icos, isInd, 6);
-	Planet geo = Planet(76,6);
+	geo = new Planet(76,6);
 
 	/*for(size_t i = 0; i < 20; i++) {
 		tesselate(icos, isInd, 0, 6);
@@ -226,6 +232,8 @@ int main() {
 	int nFrames = 0;
 	lastTime = glfwGetTime();
 
+	srand(lastTime);
+
 	while(!glfwWindowShouldClose(window)) {
 		currentTime = glfwGetTime();
 		deltaTime = currentTime - lastTime;
@@ -274,11 +282,12 @@ int main() {
 		glDisableVertexAttribArray(vertPosID);
 		glDisableVertexAttribArray(colourPosID);*/
 
-		geo.draw(programID, camera);
+		geo->draw(programID, camera);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
+	delete geo;
 
 	return 0;
 }
