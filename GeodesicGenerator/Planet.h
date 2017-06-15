@@ -5,15 +5,14 @@
 
 #include <glm/glm.hpp>
 
-#include "Geodesic.h"
-#include "Noise3d.h"
-#include "controls.h"
 #include "Camera.h"
 #include "FaceTree.h"
 
 class Planet{
 	GLuint VertexBuffer, ColourBuffer, NormalBuffer, IndexBuffer;
+	size_t Seed;
 	std::vector<FaceTree*> Faces;
+	
 	void genIndices(unsigned depth);
 public:
 	Planet(size_t seed, unsigned depth);

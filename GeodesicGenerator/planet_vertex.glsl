@@ -35,6 +35,8 @@ const float R_INNER = 0.99;
 const float SCALE_HEIGHT = 1.0 / (0.25 * (R - R_INNER));
 const float SCALE_LENGTH = 1.0 / (R - R_INNER);
 
+vec3 origin_worldspace = (M*vec4(0, 0, 0, 1)).xyz;
+
 vec3 sphere_int(vec3 ray_ori, vec3 ray_dir, vec3 sphere_ori, float rad) {
 	//float a = dot(ray_dir, ray_dir); Assuming ray_dir is normalised a = 1
 	float b = 2 * dot(ray_dir, ray_ori - sphere_ori);
@@ -68,7 +70,7 @@ float phase_mie(float g, float c, float cc) {
 }
 
 float density(vec3 p) {
-	return exp(-(length(p) - R_INNER) * SCALE_HEIGHT);
+	return exp(-(length(p - origin_worldspace) - R_INNER) * SCALE_HEIGHT);
 }
 
 float out_scatter(vec3 p1, vec3 p2) {
@@ -93,7 +95,7 @@ vec3 scatter(vec3 p1, vec3 cam_dir, vec3 s_ori, float rad) {
 	vec3 sum = vec3(0);
 	//float sum = 0;
 	for(int i = 0; i < NUM_STEPS; i++) {
-		vec3 pc = sphere_int(p, light_direction, vec3(0), R);
+		vec3 pc = sphere_int(p, light_direction, origin_worldspace, R);
 
 		float n = (out_scatter(pc, p) + out_scatter(p, p2)) * (PI * 4.0);
 
@@ -116,9 +118,7 @@ void main() {
 	vertex_worldspace = (M * vec4(vertex_position, 1)).xyz;
 
 	camera_direction = normalize(camera_position - vertex_worldspace);
-	//v_colour = scatter(vertex_worldspace, camera_direction, vec3(0), R);
-	//float n = out_scatter(vertex_worldspace, sphere_int(vertex_worldspace, camera_direction, vec3(0), R))
-	//	+ out_scatter(vertex_worldspace, sphere_int(vertex_worldspace, light_direction, vec3(0), R));
+
 	v_colour = vertex_colour;
-	vertex_scatter = scatter(vertex_worldspace, camera_direction, vec3(0), R);
+	vertex_scatter = scatter(vertex_worldspace, camera_direction, origin_worldspace, R);
 }

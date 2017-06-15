@@ -9,6 +9,7 @@ in vec3 vertex_scatter;
 uniform vec3 light_direction;
 uniform vec3 light_colour;
 uniform float light_power;
+uniform mat4 M;
 
 out vec3 color;
 
@@ -30,6 +31,9 @@ const float R_INNER = 0.99;
 const float SCALE_HEIGHT = 1.0 / (0.25 * (R - R_INNER));
 const float SCALE_LENGTH = 1.0 / (R - R_INNER);
 
+vec3 origin_worldspace = (M*vec4(0, 0, 0, 1)).xyz;;
+
+
 vec3 sphere_int(vec3 ray_ori, vec3 ray_dir, vec3 sphere_ori, float rad) {
 	//float a = dot(ray_dir, ray_dir); Assuming ray_dir is normalised a = 1
 	float b = 2 * dot(ray_dir, ray_ori - sphere_ori);
@@ -46,7 +50,7 @@ vec3 sphere_int(vec3 ray_ori, vec3 ray_dir, vec3 sphere_ori, float rad) {
 }
 
 float density(vec3 p) {
-	return exp(-(length(p) - R_INNER) * SCALE_HEIGHT);
+	return exp(-(length(p - origin_worldspace) - R_INNER) * SCALE_HEIGHT);
 }
 
 float out_scatter(vec3 p1, vec3 p2) {
@@ -71,8 +75,8 @@ void main() {
 
 	float cos_alpha = clamp(dot(reflection_direction, camera_direction), 0, 1);
 
-	float n = out_scatter(vertex_worldspace, sphere_int(vertex_worldspace, camera_direction, vec3(0), R));
-		+ out_scatter(vertex_worldspace, sphere_int(vertex_worldspace, light_direction, vec3(0), R));
+	float n = out_scatter(vertex_worldspace, sphere_int(vertex_worldspace, camera_direction, origin_worldspace, R));
+		+ out_scatter(vertex_worldspace, sphere_int(vertex_worldspace, light_direction, origin_worldspace, R));
 
 	color = (v_colour * light_colour * light_power * cos_theta)
 		+ v_colour * light_colour * light_power * pow(cos_alpha, 5) * cos_theta * 0.3

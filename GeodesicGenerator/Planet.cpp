@@ -28,20 +28,6 @@ void Planet::genIndices(unsigned depth) {
 	glBufferData(GL_ARRAY_BUFFER, Indices.size() * sizeof(unsigned), Indices.data(), GL_STATIC_DRAW);
 }
 
-//void Planet::genBuffers() {
-//	glGenBuffers(1, &VertexBuffer);
-//	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
-//	glBufferData(GL_ARRAY_BUFFER, Vertices.size() * sizeof(glm::vec3), Vertices.data(), GL_STATIC_DRAW);
-//
-//	glGenBuffers(1, &ColourBuffer);
-//	glBindBuffer(GL_ARRAY_BUFFER, ColourBuffer);
-//	glBufferData(GL_ARRAY_BUFFER, Colours.size() * sizeof(glm::vec3), Colours.data(), GL_STATIC_DRAW);
-//
-//	glGenBuffers(1, &IndexBuffer);
-//	glBindBuffer(GL_ARRAY_BUFFER, IndexBuffer);
-//	glBufferData(GL_ARRAY_BUFFER, Indices.size() * sizeof(unsigned), Indices.data(), GL_STATIC_DRAW);
-//}
-
 Planet::Planet(size_t seed = 0, unsigned depth=0) : mesh(seed) {
 	const double ic_a = 0.52573111211913360602566908484789;
 	const double ic_b = 0.85065080835203993218154049706302;
@@ -55,8 +41,8 @@ Planet::Planet(size_t seed = 0, unsigned depth=0) : mesh(seed) {
 	for(size_t i = 0; i < Vertices.size(); i++) {
 		Vertices[i] = rotation * glm::vec4(Vertices[i], 1);
 	}
-	//init(verts, inds, depth);
 
+	Seed = seed;
 
 	for each (glm::vec3 vert in Vertices) {
 		mesh.addVertex(vert);
@@ -88,7 +74,7 @@ Planet::~Planet() {
 
 void Planet::draw(GLuint programID, Camera* camera) {
 	//glm::rotate(-acos(glm::dot(Vertices[0], glm::vec3(0,1,0))), glm::vec3(1,0,0)) *
-	glm::mat4 model = glm::rotate(((float)glfwGetTime() * 2 * glm::pi<float>())/24, glm::vec3(0,1,0)) * glm::translate(glm::vec3(0));
+	glm::mat4 model = glm::translate(glm::vec3(0,0,0)) * glm::rotate(glm::radians(-23.5f), glm::vec3(1,0,0)) * glm::rotate(((float)glfwGetTime() * 2 * glm::pi<float>())/24, glm::vec3(0,1,0));
 	glm::mat4 view = camera->getViewMatrix();
 	glm::mat4 projection = camera->getProjectionMatrix();
 	glm::mat4 MVP = projection * view * model;
