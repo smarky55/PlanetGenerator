@@ -1,7 +1,5 @@
 #include "OrbitCamera.h"
 
-
-
 void OrbitCamera::updatePosition() {
 	Position.x = Distance * glm::sin(HorizontalAngle) * glm::cos(VerticalAngle);
 	Position.z = Distance * glm::cos(HorizontalAngle) * glm::cos(VerticalAngle);
@@ -37,9 +35,9 @@ void OrbitCamera::update() {
 	glfwGetCursorPos(Window, &xPos, &yPos);
 	glfwSetCursorPos(Window, width / 2., height / 2.);
 	
-	HorizontalAngle += MouseSpeed * glm::min((Distance - 1.0)/2, 1.0) * float(width / 2. - xPos);
+	HorizontalAngle += MouseSpeed * glm::min((Distance - 1.0)/2, 1.0) * float(glm::floor(width / 2.0) - xPos);
 	HorizontalAngle = std::fmod(HorizontalAngle, 3.14f * 2);
-	VerticalAngle += MouseSpeed * glm::min((Distance - 1.0) / 2, 1.0) * float(height / 2. - yPos);
+	VerticalAngle += MouseSpeed * glm::min((Distance - 1.0) / 2, 1.0) * float(glm::floor(height / 2.0) - yPos);
 	VerticalAngle = glm::clamp(VerticalAngle, -1.57f, 1.57f);
 
 	glm::vec3 up = glm::vec3(0, 1, 0);

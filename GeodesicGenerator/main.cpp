@@ -66,6 +66,10 @@ static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) 
 	static_cast<OrbitCamera*>(camera)->distanceOffset(yoffset);
 }
 
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+	glViewport(0, 0, width, height);
+}
+
 int main() {	
 	if(!glfwInit()) {
 		throw std::runtime_error("Failed to init GLFW!");
@@ -103,6 +107,8 @@ int main() {
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, true);
 
 	glfwSetKeyCallback(window, key_callback);
+
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	glfwSwapInterval(1);
 
