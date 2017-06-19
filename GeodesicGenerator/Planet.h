@@ -9,7 +9,7 @@
 #include "FaceTree.h"
 
 class Planet{
-	GLuint VertexBuffer, ColourBuffer, NormalBuffer, IndexBuffer;
+	GLuint VertexBuffer, ColourBuffer, NormalBuffer, IndexBuffer, AtmoIndBuffer;
 	size_t Seed;
 	std::vector<FaceTree*> Faces;
 	
@@ -24,6 +24,7 @@ public:
 	//std::vector<glm::vec3> Colours;
 	//std::vector<glm::vec3> Normals;
 	std::vector<unsigned> Indices;
+	std::vector<unsigned> AtmoIndices;
 
 	void draw(GLuint programID, Camera* camera);
 };

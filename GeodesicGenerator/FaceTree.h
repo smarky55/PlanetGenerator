@@ -12,7 +12,7 @@ struct Mesh {
 	size_t Seed;
 
 	std::vector<glm::vec3> Vertices;
-	std::vector<glm::vec3> Colours;
+	std::vector<glm::vec4> Colours;
 	std::vector<glm::vec3> Normals;
 
 	void addVertex(glm::vec3 vertex);

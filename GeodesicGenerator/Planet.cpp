@@ -13,19 +13,25 @@ void Planet::genIndices(unsigned depth) {
 		for(size_t i = 0; i < 3; i++) {
 			Indices.push_back((*face)[i]);
 		}
+		AtmoIndices.push_back((*face)[0]);
+		AtmoIndices.push_back((*face)[2]);
+		AtmoIndices.push_back((*face)[1]);
 	}
 	if(mesh.Vertices.size() != nVerts) {
 		glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
 		glBufferData(GL_ARRAY_BUFFER, mesh.Vertices.size() * sizeof(glm::vec3), mesh.Vertices.data(), GL_STATIC_DRAW);
 
 		glBindBuffer(GL_ARRAY_BUFFER, ColourBuffer);
-		glBufferData(GL_ARRAY_BUFFER, mesh.Colours.size() * sizeof(glm::vec3), mesh.Colours.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, mesh.Colours.size() * sizeof(glm::vec4), mesh.Colours.data(), GL_STATIC_DRAW);
 
 		glBindBuffer(GL_ARRAY_BUFFER, NormalBuffer);
 		glBufferData(GL_ARRAY_BUFFER, mesh.Normals.size() * sizeof(glm::vec3), mesh.Normals.data(), GL_STATIC_DRAW);
 	}
 	glBindBuffer(GL_ARRAY_BUFFER, IndexBuffer);
 	glBufferData(GL_ARRAY_BUFFER, Indices.size() * sizeof(unsigned), Indices.data(), GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, AtmoIndBuffer);
+	glBufferData(GL_ARRAY_BUFFER, AtmoIndices.size() * sizeof(unsigned), AtmoIndices.data(), GL_STATIC_DRAW);
 }
 
 Planet::Planet(size_t seed = 0, unsigned depth=0) : mesh(seed) {
@@ -57,6 +63,7 @@ Planet::Planet(size_t seed = 0, unsigned depth=0) : mesh(seed) {
 	glGenBuffers(1, &ColourBuffer);
 	glGenBuffers(1, &NormalBuffer);
 	glGenBuffers(1, &IndexBuffer);
+	glGenBuffers(1, &AtmoIndBuffer);
 
 	genIndices(depth);
 }
@@ -74,7 +81,7 @@ Planet::~Planet() {
 
 void Planet::draw(GLuint programID, Camera* camera) {
 	//glm::rotate(-acos(glm::dot(Vertices[0], glm::vec3(0,1,0))), glm::vec3(1,0,0)) *
-	glm::mat4 model = glm::translate(glm::vec3(0,0,0)) * glm::rotate(glm::radians(-23.5f), glm::vec3(1,0,0)) * glm::rotate(((float)glfwGetTime() * 2 * glm::pi<float>())/24, glm::vec3(0,1,0));
+	glm::mat4 model = glm::translate(glm::vec3(0, 0, 0)) *glm::rotate(glm::radians(-23.5f), glm::vec3(1, 0, 0)) *glm::rotate(((float)glfwGetTime() * 2 * glm::pi<float>()) / 60, glm::vec3(0, 1, 0));
 	glm::mat4 view = camera->getViewMatrix();
 	glm::mat4 projection = camera->getProjectionMatrix();
 	glm::mat4 MVP = projection * view * model;
@@ -84,13 +91,14 @@ void Planet::draw(GLuint programID, Camera* camera) {
 	colourPosID = glGetAttribLocation(programID, "vertex_colour");
 	mvpID = glGetUniformLocation(programID, "MVP");
 
-	GLuint normPosID, mID, lightDirID, lightColID, lightPowID, camPosID;
+	GLuint normPosID, mID, lightDirID, lightColID, lightPowID, camPosID, isAtmosID;
 	normPosID = glGetAttribLocation(programID, "vertex_normal");
 	mID = glGetUniformLocation(programID, "M");
 	lightDirID = glGetUniformLocation(programID, "light_direction");
 	lightColID = glGetUniformLocation(programID, "light_colour");
 	lightPowID = glGetUniformLocation(programID, "light_power");
 	camPosID = glGetUniformLocation(programID, "camera_position");
+	isAtmosID = glGetUniformLocation(programID, "isAtmos");
 
 	glUniformMatrix4fv(mvpID, 1, GL_FALSE, &MVP[0][0]);
 
@@ -102,6 +110,7 @@ void Planet::draw(GLuint programID, Camera* camera) {
 	glUniform3fv(lightColID, 1, &lightColour[0]);
 	glUniform1f(lightPowID, lightPower);
 	glUniform3fv(camPosID, 1, &(camera->getPosition())[0]);
+	glUniform1i(isAtmosID, 0);
 
 	glEnableVertexAttribArray(vertPosID);
 	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
@@ -109,7 +118,7 @@ void Planet::draw(GLuint programID, Camera* camera) {
 
 	glEnableVertexAttribArray(colourPosID);
 	glBindBuffer(GL_ARRAY_BUFFER, ColourBuffer);
-	glVertexAttribPointer(colourPosID, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glVertexAttribPointer(colourPosID, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
 	glEnableVertexAttribArray(normPosID);
 	glBindBuffer(GL_ARRAY_BUFFER, NormalBuffer);
@@ -119,8 +128,19 @@ void Planet::draw(GLuint programID, Camera* camera) {
 
 	glDrawElements(GL_TRIANGLES, Indices.size(), GL_UNSIGNED_INT, nullptr);
 
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, AtmoIndBuffer);
+
+	model = model * glm::scale(glm::vec3(1.1));
+	MVP = projection * view * model;
+	glUniformMatrix4fv(mvpID, 1, GL_FALSE, &MVP[0][0]);
+	glUniformMatrix4fv(mID, 1, GL_FALSE, &model[0][0]);
+	glUniform1i(isAtmosID, 1);
+
+	glDrawElements(GL_TRIANGLES, Indices.size(), GL_UNSIGNED_INT, nullptr);
+
 	glDisableVertexAttribArray(vertPosID);
 	glDisableVertexAttribArray(colourPosID);
+	glDisableVertexAttribArray(normPosID);
 }
 
 

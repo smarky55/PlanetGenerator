@@ -10,6 +10,7 @@ uniform vec3 light_direction;
 uniform vec3 light_colour;
 uniform float light_power;
 uniform mat4 M;
+uniform bool isAtmos;
 
 out vec3 color;
 
@@ -26,7 +27,7 @@ const float PI = 3.14159265359;
 const float FNUM_STEPS = 10.0;
 const int NUM_STEPS = 10;
 
-const float R = 1.1;
+const float R = 1.05;
 const float R_INNER = 0.99;
 const float SCALE_HEIGHT = 1.0 / (0.25 * (R - R_INNER));
 const float SCALE_LENGTH = 1.0 / (R - R_INNER);
@@ -78,8 +79,12 @@ void main() {
 	float n = out_scatter(vertex_worldspace, sphere_int(vertex_worldspace, camera_direction, origin_worldspace, R));
 		+ out_scatter(vertex_worldspace, sphere_int(vertex_worldspace, light_direction, origin_worldspace, R));
 
-	color = (v_colour * light_colour * light_power * cos_theta)
-		+ v_colour * light_colour * light_power * pow(cos_alpha, 5) * cos_theta * 0.3
-		+ v_colour * light_colour * 0.1;
-	color = color * exp(-n * PI * 4 * (K_R * C_R + K_M)) + vertex_scatter;
+	if(isAtmos) {
+		color = vertex_scatter;
+	} else {
+		color = (v_colour * light_colour * light_power * cos_theta)
+			+ v_colour * light_colour * light_power * pow(cos_alpha, 5) * cos_theta * 0.3
+			+ v_colour * light_colour * 0.1;
+		color = color * exp(-n * PI * 4 * (K_R * C_R + K_M)) + vertex_scatter;
+	}
 }

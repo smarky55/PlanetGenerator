@@ -2,12 +2,13 @@
 
 in vec3 vertex_position;
 in vec3 vertex_normal;
-in vec3 vertex_colour;
+in vec4 vertex_colour;
 
 uniform mat4 MVP;
 uniform mat4 M;
 uniform vec3 camera_position;
 uniform vec3 light_direction;
+uniform bool isAtmos;
 
 out vec3 v_colour;
 out vec3 vertex_worldspace;
@@ -30,7 +31,7 @@ const float PI = 3.14159265359;
 const float FNUM_STEPS = 10.0;
 const int NUM_STEPS = 10;
 
-const float R = 1.1;
+const float R = 1.05;
 const float R_INNER = 0.99;
 const float SCALE_HEIGHT = 1.0 / (0.25 * (R - R_INNER));
 const float SCALE_LENGTH = 1.0 / (R - R_INNER);
@@ -119,6 +120,10 @@ void main() {
 
 	camera_direction = normalize(camera_position - vertex_worldspace);
 
-	v_colour = vertex_colour;
+	if(isAtmos) {
+		v_colour = vec3(0.0);
+	} else {
+		v_colour = vertex_colour.xyz;
+	} 
 	vertex_scatter = scatter(vertex_worldspace, camera_direction, origin_worldspace, R);
 }

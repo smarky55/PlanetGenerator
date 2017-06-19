@@ -75,14 +75,14 @@ void Mesh::addVertex(glm::vec3 vertex) {
 	double latitude = 90 - glm::degrees(glm::acos(glm::dot(vertex, glm::vec3(0, 1, 0))));
 	double temp = ((Noise3d::getPoint(Seed + 4, 0.3, vertex.x, vertex.y, vertex.z) + 2)/3)
 				* glm::cos(glm::radians(latitude)) * 50 - 20;
-	glm::vec3 colour;
+	glm::vec4 colour;
 	if(point < 0.55) {
-		colour = glm::vec3(0, 0.22, 0.48);
+		colour = glm::vec4(0, 0.22, 0.48,1) * float((point+0.1)/0.65);
 	} else {
-		colour = glm::vec3(0, (102. / 255)*point, 0);
+		colour = glm::vec4(0, (102. / 255)*point, 0, 1);
 	}
 	if(temp < 0) {
-		colour = glm::mix(colour, glm::vec3(1), abs(temp / 20) + 0.5);
+		colour = glm::mix(colour, glm::vec4(1), abs(temp / 20) + 0.5);
 	}
 	Colours.push_back(colour);
 
