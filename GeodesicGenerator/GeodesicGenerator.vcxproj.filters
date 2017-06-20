@@ -111,5 +111,8 @@
     <None Include="planet_fragment.glsl">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="scattering.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

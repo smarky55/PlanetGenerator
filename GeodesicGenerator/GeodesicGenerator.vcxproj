@@ -226,6 +226,7 @@ xcopy /Y "$(ProjectDir)*.glsl" "$(TargetDir)"</Command>
       <SubType>
       </SubType>
     </None>
+    <None Include="scattering.glsl" />
     <None Include="shading_fragment.glsl" />
     <None Include="shading_vertex.glsl" />
   </ItemGroup>
