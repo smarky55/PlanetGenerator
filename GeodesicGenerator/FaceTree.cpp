@@ -66,23 +66,35 @@ Mesh::~Mesh() {
 
 void Mesh::addVertex(glm::vec3 vertex) {
 	Vertices.push_back(vertex);
-
-	double point = (Noise3d::getPoint(Seed, 0.75, vertex.x, vertex.y, vertex.z)*0.4
-					+ Noise3d::getPoint(Seed + 1, 0.5, vertex.x, vertex.y, vertex.z)*0.5
-					+ Noise3d::getPoint(Seed + 2, 0.25, vertex.x, vertex.y, vertex.z)*0.25
-					+ Noise3d::getPoint(Seed + 3, 0.1, vertex.x, vertex.y, vertex.z)*0.1) / 1.25;
-	// std::cout << point << std::endl;
+	size_t seed = Seed;
+	double point = (Noise3d::getPoint(seed, 0.75, vertex)*0.4
+					+ Noise3d::getPoint(++seed, 0.5, vertex)*0.5
+					+ Noise3d::getPoint(++seed, 0.25, vertex)*0.25
+					+ Noise3d::getPoint(++seed, 0.1, vertex)*0.1
+					+ Noise3d::getPoint(++seed, 0.05, vertex)*0.075) / 1.35;
+	
 	double latitude = 90 - glm::degrees(glm::acos(glm::dot(vertex, glm::vec3(0, 1, 0))));
-	double temp = ((Noise3d::getPoint(Seed + 4, 0.3, vertex.x, vertex.y, vertex.z) + 2)/3)
+	double temp = ((Noise3d::getPoint(++seed, 0.3, vertex) + 2)/3)
 				* glm::cos(glm::radians(latitude)) * 50 - 20;
 	glm::vec4 colour;
-	if(point < 0.55) {
-		colour = glm::vec4(0, 0.22, 0.48,1) * float((point+0.1)/0.65);
+	float sea_offset = 0.55;
+	float mountain_offset = 0.7;
+	glm::vec3 blue_sea = glm::vec3(0, 0.22, 0.48);
+	glm::vec3 green_grass = glm::vec3(0, 102. / 255, 0);
+	glm::vec3 brown_mountain = glm::vec3(0.26, 0.14, 0.03);
+	if(point < sea_offset) {
+		colour = glm::vec4(blue_sea * float((point + 0.1) / (sea_offset + 0.1)), 
+						   1.5f * (Noise3d::getPoint(++seed, 0.01, vertex)/4 +0.75));
+	} else if(point < mountain_offset) {
+		colour = glm::mix(glm::vec4(green_grass * float(point / mountain_offset), 0.1) ,
+						  glm::vec4(brown_mountain, 0.1),
+						  pow((point-sea_offset)/(mountain_offset-sea_offset), 4));
 	} else {
-		colour = glm::vec4(0, (102. / 255)*point, 0, 1);
+		colour = glm::mix(glm::vec4(brown_mountain, 0.1), glm::vec4(1,1,1,0.1), 
+						  pow(Noise3d::getPoint(++seed, 0.01, vertex) * (point-mountain_offset)/(1-mountain_offset), 0.6));
 	}
 	if(temp < 0) {
-		colour = glm::mix(colour, glm::vec4(1), abs(temp / 20) + 0.5);
+		colour = glm::mix(colour, glm::vec4(1,1,1,0.1), abs(temp / 20) + 0.5);
 	}
 	Colours.push_back(colour);
 

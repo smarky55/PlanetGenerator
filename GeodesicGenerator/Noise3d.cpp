@@ -252,3 +252,7 @@ glm::vec3 Noise3d::getGrad(size_t seed, double wavelength, double x, double y, d
 	return glm::vec3((fxdxyz - fxyz) / dx, (fxydyz - fxyz) / dy, (fxyzdz - fxyz) / dz);
 }
 
+double Noise3d::getPoint(size_t seed, double wavelength, glm::vec3& vertex) {
+	return Noise3d::getPoint(seed, wavelength, vertex.x, vertex.y, vertex.z);
+}
+

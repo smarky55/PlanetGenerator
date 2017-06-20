@@ -21,5 +21,6 @@ public:
 	double getPoint(double x, double y, double z);
 	static double getPoint(size_t seed, double wavelength, double x, double y, double z);
 	static glm::vec3 getGrad(size_t seed, double wavelength, double x, double y, double z);
+	static double getPoint(size_t seed, double wavelength, glm::vec3& vertex);
 };
 

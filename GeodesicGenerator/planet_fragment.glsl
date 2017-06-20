@@ -1,6 +1,6 @@
 #version 330 core
 
-in vec3 v_colour;
+in vec4 v_colour;
 in vec3 normal_worldspace;
 in vec3 camera_direction;
 in vec3 vertex_worldspace;
@@ -82,9 +82,9 @@ void main() {
 	if(isAtmos) {
 		color = vertex_scatter;
 	} else {
-		color = (v_colour * light_colour * light_power * cos_theta)
-			+ v_colour * light_colour * light_power * pow(cos_alpha, 5) * cos_theta * 0.3
-			+ v_colour * light_colour * 0.1;
+		color = (v_colour.rgb * light_colour * light_power * cos_theta)
+			+ v_colour.rgb * light_colour * light_power * pow(cos_alpha, 5) * cos_theta * v_colour.a
+			+ v_colour.rgb * light_colour * 0.1;
 		color = color * exp(-n * PI * 4 * (K_R * C_R + K_M)) + vertex_scatter;
 	}
 }

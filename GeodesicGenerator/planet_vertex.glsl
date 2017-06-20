@@ -10,7 +10,7 @@ uniform vec3 camera_position;
 uniform vec3 light_direction;
 uniform bool isAtmos;
 
-out vec3 v_colour;
+out vec4 v_colour;
 out vec3 vertex_worldspace;
 out vec3 vertex_scatter;
 out vec3 normal_worldspace;
@@ -121,9 +121,9 @@ void main() {
 	camera_direction = normalize(camera_position - vertex_worldspace);
 
 	if(isAtmos) {
-		v_colour = vec3(0.0);
+		v_colour = vec4(0.0);
 	} else {
-		v_colour = vertex_colour.xyz;
+		v_colour = vertex_colour;
 	} 
 	vertex_scatter = scatter(vertex_worldspace, camera_direction, origin_worldspace, R);
 }
