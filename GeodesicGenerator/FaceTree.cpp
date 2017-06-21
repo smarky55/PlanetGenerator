@@ -66,18 +66,18 @@ Mesh::~Mesh() {
 
 void Mesh::addVertex(glm::vec3 vertex) {
 	Vertices.push_back(vertex);
-	size_t seed = Seed;
+	/*size_t seed = Seed;
 	double point = (Noise3d::getPoint(seed, 0.75, vertex)*0.4
 					+ Noise3d::getPoint(++seed, 0.5, vertex)*0.5
 					+ Noise3d::getPoint(++seed, 0.25, vertex)*0.25
 					+ Noise3d::getPoint(++seed, 0.1, vertex)*0.1
-					+ Noise3d::getPoint(++seed, 0.05, vertex)*0.075) / 1.35;
+					+ Noise3d::getPoint(++seed, 0.05, vertex)*0.075) / 1.325;
 	
 	double latitude = 90 - glm::degrees(glm::acos(glm::dot(vertex, glm::vec3(0, 1, 0))));
 	double temp = ((Noise3d::getPoint(++seed, 0.3, vertex) + 2)/3)
-				* glm::cos(glm::radians(latitude)) * 50 - 20;
-	glm::vec4 colour;
-	float sea_offset = 0.55;
+				* glm::cos(glm::radians(latitude)) * 50 - 20;*/
+	glm::vec4 colour(0);
+	/*float sea_offset = 0.55;
 	float mountain_offset = 0.7;
 	glm::vec3 blue_sea = glm::vec3(0, 0.22, 0.48);
 	glm::vec3 green_grass = glm::vec3(0, 102. / 255, 0);
@@ -95,7 +95,7 @@ void Mesh::addVertex(glm::vec3 vertex) {
 	}
 	if(temp < 0) {
 		colour = glm::mix(colour, glm::vec4(1,1,1,0.1), abs(temp / 20) + 0.5);
-	}
+	}*/
 	Colours.push_back(colour);
 
 	Normals.push_back(vertex);

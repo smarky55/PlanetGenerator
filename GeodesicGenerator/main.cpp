@@ -161,7 +161,7 @@ int main() {
 		3,5,7
 	};*/
 
-	geo = new Planet(76,6);
+	geo = new Planet(76,1);
 
 	OrbitCamera cam = OrbitCamera(glm::vec3(0));
 	camera = &cam;

@@ -218,6 +218,7 @@ xcopy /Y "$(ProjectDir)*.glsl" "$(TargetDir)"</Command>
     <None Include="atmosphere_vertex.glsl" />
     <None Include="basic_fragment.glsl" />
     <None Include="basic_vertex.glsl" />
+    <None Include="classicnoise3D.glsl" />
     <None Include="planet_fragment.glsl">
       <SubType>
       </SubType>

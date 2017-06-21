@@ -12,6 +12,7 @@ uniform bool isAtmos;
 
 out vec4 v_colour;
 out vec3 vertex_worldspace;
+out vec3 vertex_modelspace;
 out vec3 vertex_scatter;
 out vec3 normal_worldspace;
 out vec3 camera_direction;
@@ -25,6 +26,7 @@ void main() {
 
 	normal_worldspace = normalize(M * vec4(vertex_normal, 0)).xyz;
 
+	vertex_modelspace = vertex_position;
 	vertex_worldspace = (M * vec4(vertex_position, 1)).xyz;
 
 	camera_direction = normalize(camera_position - vertex_worldspace);

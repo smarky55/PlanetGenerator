@@ -15,7 +15,7 @@ class Planet{
 	
 	void genIndices(unsigned depth);
 public:
-	Planet(size_t seed, unsigned depth);
+	Planet(size_t seed, unsigned depth=0);
 	~Planet();
 
 	Mesh mesh;

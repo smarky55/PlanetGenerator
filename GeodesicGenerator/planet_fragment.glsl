@@ -4,6 +4,7 @@ in vec4 v_colour;
 in vec3 normal_worldspace;
 in vec3 camera_direction;
 in vec3 vertex_worldspace;
+in vec3 vertex_modelspace;
 in vec3 vertex_scatter;
 
 uniform vec3 light_direction;
@@ -11,6 +12,7 @@ uniform vec3 light_colour;
 uniform float light_power;
 uniform mat4 M;
 uniform bool isAtmos;
+uniform int Seed;
 
 out vec3 color;
 
@@ -18,67 +20,54 @@ vec3 origin_worldspace = (M*vec4(0, 0, 0, 1)).xyz;
 
 #include <scattering.glsl>
 
-//const float MAX = 10000.0;
-//
-//const float K_R = 0.166;
-//const float K_M = 0.0025;
-//const float E = 14.3; 						// light intensity
-//const vec3  C_R = vec3(0.3, 0.7, 1.0); 	// 1 / wavelength ^ 4
-//const float G_M = -0.85;
-//
-//const float PI = 3.14159265359;
-//
-//const float FNUM_STEPS = 10.0;
-//const int NUM_STEPS = 10;
-//
-//const float R = 1.05;
-//const float R_INNER = 0.99;
-//const float SCALE_HEIGHT = 1.0 / (0.25 * (R - R_INNER));
-//const float SCALE_LENGTH = 1.0 / (R - R_INNER);
-//
-//vec3 origin_worldspace = (M*vec4(0, 0, 0, 1)).xyz;;
-//
-//
-//vec3 sphere_int(vec3 ray_ori, vec3 ray_dir, vec3 sphere_ori, float rad) {
-//	//float a = dot(ray_dir, ray_dir); Assuming ray_dir is normalised a = 1
-//	float b = 2 * dot(ray_dir, ray_ori - sphere_ori);
-//	float c = dot(ray_ori - sphere_ori, ray_ori - sphere_ori) - rad * rad;
-//
-//	float det = (b * b) - (4 * c);
-//	if(det < 0) {
-//		return vec3(MAX, MAX, MAX);
-//	}
-//	det = sqrt(det);
-//	float t1 = 0.5 * (-b + det);
-//	float t2 = 0.5 * (-b - det);
-//	return ray_ori + ray_dir * max(t1, t2);
-//}
-//
-//float density(vec3 p) {
-//	return exp(-(length(p - origin_worldspace) - R_INNER) * SCALE_HEIGHT);
-//}
-//
-//float out_scatter(vec3 p1, vec3 p2) {
-//	vec3 step = (p2 - p1) / FNUM_STEPS;
-//	vec3 p = p1 + step * 0.5;
-//
-//	float sum = 0.0;
-//	for(int i = 0; i < NUM_STEPS; i++) {
-//		sum += density(p);
-//		p += step;
-//	}
-//	sum *= length(step) * SCALE_LENGTH;
-//
-//	return sum;
-//}
+#include <classicnoise3d.glsl>
+
+const vec3 blue_sea = vec3(0, 0.22, 0.48);
+const vec3 green_grass = vec3(0, 0.4, 0);
+const vec3 brown_mountain = vec3(0.26, 0.14, 0.03);
+
+const float sea_offset = 0.55;
+const float mountain_offset = 0.7;
+
+vec4 get_colour(vec3 vertex) {
+	int seed = Seed;
+	float pt = (noise(vertex / 0.75, seed++) * 0.4
+				+ noise(vertex / 0.5, seed++) * 0.5
+				+ noise(vertex / 0.25, seed++) * 0.25
+				+ noise(vertex / 0.1, seed++) * 0.1
+				+ noise(vertex / 0.05, seed++) * 0.075) / 1.325;
+
+	float latitude = PI*0.5 - acos(dot(vertex, vec3(0, 1, 0)));
+	float temp = ((noise(vertex/0.3, seed++) + 2)/3) * cos(latitude) * 50 - 20;
+
+	vec4 colour;
+	if(pt < sea_offset) {
+		colour = vec4(blue_sea * ((pt + 0.1) / (sea_offset + 0.1)), (noise(vertex / 0.01, seed++)+3)*0.25);
+	} else if(pt < mountain_offset) {
+		colour = mix(vec4(green_grass * pt / mountain_offset, 0.1),
+					 vec4(brown_mountain, 0.1),
+					 pow((pt - sea_offset) / (mountain_offset - sea_offset), 4));
+	} else {
+		colour = mix(vec4(brown_mountain, 0.1), vec4(1, 1, 1, 0.1),
+					 pow((pt - mountain_offset)/(1-mountain_offset), 0.9) * noise(vertex / 0.05, seed++));
+	}
+
+	if(temp < 0) {
+		colour = mix(colour, vec4(1, 1, 1, 0.2), abs(temp / 20) + 0.5);
+	}
+
+	return colour;
+}
 
 void main() {
+	vec4 f_colour = get_colour(vertex_modelspace);
+
 	vec3 light_dir_norm = normalize(light_direction);
 	float cos_theta = clamp(dot(normal_worldspace, light_dir_norm), 0, 1);
 
 	vec3 reflection_direction = reflect(-light_dir_norm, normal_worldspace);
 
-	float cos_alpha = clamp(dot(reflection_direction, camera_direction), 0, 1);
+	float cos_alpha = clamp(f_colour.a * dot(reflection_direction, camera_direction), 0, 1);
 
 	float n = out_scatter(vertex_worldspace, sphere_int(vertex_worldspace, camera_direction, origin_worldspace, R));
 		+ out_scatter(vertex_worldspace, sphere_int(vertex_worldspace, light_direction, origin_worldspace, R));
@@ -86,9 +75,9 @@ void main() {
 	if(isAtmos) {
 		color = vertex_scatter;
 	} else {
-		color = (v_colour.rgb * light_colour * light_power * cos_theta)
-			+ v_colour.rgb * light_colour * light_power * pow(cos_alpha, 5) * cos_theta * v_colour.a
-			+ v_colour.rgb * light_colour * 0.1;
+		color = (f_colour.rgb * light_colour * light_power * cos_theta)
+			+ f_colour.rgb * light_colour * light_power * pow(cos_alpha, 2) * cos_theta
+			+ f_colour.rgb * light_colour * 0.1;
 		color = color * exp(-n * PI * 4 * (K_R * C_R + K_M)) + vertex_scatter;
 	}
 }
