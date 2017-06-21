@@ -18,16 +18,16 @@ void Planet::genIndices(unsigned depth) {
 		AtmoIndices.push_back((*face)[2]);
 		AtmoIndices.push_back((*face)[1]);
 	}
-	if(mesh.Vertices.size() != nVerts) {
-		glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
-		glBufferData(GL_ARRAY_BUFFER, mesh.Vertices.size() * sizeof(glm::vec3), mesh.Vertices.data(), GL_STATIC_DRAW);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
+	glBufferData(GL_ARRAY_BUFFER, mesh.Vertices.size() * sizeof(glm::vec3), mesh.Vertices.data(), GL_STATIC_DRAW);
 
-		glBindBuffer(GL_ARRAY_BUFFER, ColourBuffer);
-		glBufferData(GL_ARRAY_BUFFER, mesh.Colours.size() * sizeof(glm::vec4), mesh.Colours.data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, ColourBuffer);
+	glBufferData(GL_ARRAY_BUFFER, mesh.Colours.size() * sizeof(glm::vec4), mesh.Colours.data(), GL_STATIC_DRAW);
 
-		glBindBuffer(GL_ARRAY_BUFFER, NormalBuffer);
-		glBufferData(GL_ARRAY_BUFFER, mesh.Normals.size() * sizeof(glm::vec3), mesh.Normals.data(), GL_STATIC_DRAW);
-	}
+	glBindBuffer(GL_ARRAY_BUFFER, NormalBuffer);
+	glBufferData(GL_ARRAY_BUFFER, mesh.Normals.size() * sizeof(glm::vec3), mesh.Normals.data(), GL_STATIC_DRAW);
+	
 	glBindBuffer(GL_ARRAY_BUFFER, IndexBuffer);
 	glBufferData(GL_ARRAY_BUFFER, Indices.size() * sizeof(unsigned), Indices.data(), GL_STATIC_DRAW);
 
@@ -104,7 +104,6 @@ void Planet::draw(GLuint programID, Camera* camera) {
 
 	GLuint vertPosID, colourPosID, mvpID;
 	vertPosID = glGetAttribLocation(programID, "vertex_position");
-	colourPosID = glGetAttribLocation(programID, "vertex_colour");
 	mvpID = glGetUniformLocation(programID, "MVP");
 
 	GLuint normPosID, mID, lightDirID, lightColID, lightPowID, camPosID, isAtmosID, seedID;
@@ -134,10 +133,6 @@ void Planet::draw(GLuint programID, Camera* camera) {
 	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
 	glVertexAttribPointer(vertPosID, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-	glEnableVertexAttribArray(colourPosID);
-	glBindBuffer(GL_ARRAY_BUFFER, ColourBuffer);
-	glVertexAttribPointer(colourPosID, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
-
 	glEnableVertexAttribArray(normPosID);
 	glBindBuffer(GL_ARRAY_BUFFER, NormalBuffer);
 	glVertexAttribPointer(normPosID, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
@@ -157,7 +152,6 @@ void Planet::draw(GLuint programID, Camera* camera) {
 	glDrawElements(GL_TRIANGLES, AtmoIndices.size(), GL_UNSIGNED_INT, nullptr);
 
 	glDisableVertexAttribArray(vertPosID);
-	glDisableVertexAttribArray(colourPosID);
 	glDisableVertexAttribArray(normPosID);
 }
 

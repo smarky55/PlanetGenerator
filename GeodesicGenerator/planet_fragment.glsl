@@ -1,6 +1,5 @@
 #version 330 core
 
-in vec4 v_colour;
 in vec3 normal_worldspace;
 in vec3 camera_direction;
 in vec3 vertex_worldspace;

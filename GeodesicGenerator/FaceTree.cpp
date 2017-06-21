@@ -76,7 +76,7 @@ void Mesh::addVertex(glm::vec3 vertex) {
 	double latitude = 90 - glm::degrees(glm::acos(glm::dot(vertex, glm::vec3(0, 1, 0))));
 	double temp = ((Noise3d::getPoint(++seed, 0.3, vertex) + 2)/3)
 				* glm::cos(glm::radians(latitude)) * 50 - 20;*/
-	glm::vec4 colour(0);
+	glm::vec4 colour = glm::vec4(0.1);
 	/*float sea_offset = 0.55;
 	float mountain_offset = 0.7;
 	glm::vec3 blue_sea = glm::vec3(0, 0.22, 0.48);

@@ -49,6 +49,95 @@ std::vector<unsigned> isInd = {
 	7,2,9
 }; */
 
+#ifdef _DEBUG
+void APIENTRY debugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam) {
+	// Some debug messages are just annoying informational messages
+	switch(id) {
+	case 131169: // The driver allocated storage for renderbuffer
+	case 131185: // glBufferData
+		return;
+	}
+
+	printf("Message: %s\n", message);
+	printf("Source: ");
+
+	switch(source) {
+	case GL_DEBUG_SOURCE_API:
+		printf("API");
+		break;
+	case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+		printf("Window System");
+		break;
+	case GL_DEBUG_SOURCE_SHADER_COMPILER:
+		printf("Shader Compiler");
+		break;
+	case GL_DEBUG_SOURCE_THIRD_PARTY:
+		printf("Third Party");
+		break;
+	case GL_DEBUG_SOURCE_APPLICATION:
+		printf("Application");
+		break;
+	case GL_DEBUG_SOURCE_OTHER:
+		printf("Other");
+		break;
+	}
+
+	printf("\n");
+	printf("Type: ");
+
+	switch(type) {
+	case GL_DEBUG_TYPE_ERROR:
+		printf("Error");
+		break;
+	case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+		printf("Deprecated Behaviour");
+		break;
+	case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+		printf("Undefined Behaviour");
+		break;
+	case GL_DEBUG_TYPE_PORTABILITY:
+		printf("Portability");
+		break;
+	case GL_DEBUG_TYPE_PERFORMANCE:
+		printf("Performance");
+		break;
+	case GL_DEBUG_TYPE_MARKER:
+		printf("Marker");
+		break;
+	case GL_DEBUG_TYPE_PUSH_GROUP:
+		printf("Push Group");
+		break;
+	case GL_DEBUG_TYPE_POP_GROUP:
+		printf("Pop Group");
+		break;
+	case GL_DEBUG_TYPE_OTHER:
+		printf("Other");
+		break;
+	}
+
+	printf("\n");
+	printf("ID: %d\n", id);
+	printf("Severity: ");
+
+	switch(severity) {
+	case GL_DEBUG_SEVERITY_HIGH:
+		printf("High");
+		break;
+	case GL_DEBUG_SEVERITY_MEDIUM:
+		printf("Medium");
+		break;
+	case GL_DEBUG_SEVERITY_LOW:
+		printf("Low");
+		break;
+	case GL_DEBUG_SEVERITY_NOTIFICATION:
+		printf("Notification");
+		break;
+	}
+
+	printf("\n\n");
+}
+#endif // _DEBUG
+
 
 Camera* camera;
 Planet* geo;
@@ -81,6 +170,9 @@ int main() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
+#ifdef _DEBUG
+	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+#endif // _DEBUG
 
 	GLFWwindow * window;
 	int width = 1600;
@@ -101,6 +193,12 @@ int main() {
 		throw std::runtime_error("Failed to initialise glew!");
 		return EXIT_FAILURE;
 	}
+
+#ifdef _DEBUG
+	glEnable(GL_DEBUG_OUTPUT);
+	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+	glDebugMessageCallback(debugMessage, nullptr);
+#endif // _DEBUG
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
@@ -161,7 +259,7 @@ int main() {
 		3,5,7
 	};*/
 
-	geo = new Planet(76,1);
+	geo = new Planet(76);
 
 	OrbitCamera cam = OrbitCamera(glm::vec3(0));
 	camera = &cam;
