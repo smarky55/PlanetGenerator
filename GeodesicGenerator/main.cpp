@@ -2,7 +2,6 @@
 #include <iostream>
 #include <vector>
 #include <iostream>
-#include <Windows.h>
 #include <cstdlib>
 
 #include <gl\glew.h>
@@ -16,6 +15,7 @@
 #include "Planet.h"
 #include "OrbitCamera.h"
 
+#define WINDOWS_APP
 
 /* typedef glm::vec3 vec3;
 const double ic_a = 0.52573111211913360602566908484789;
@@ -159,7 +159,13 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
 }
 
-int main() {	
+#ifndef _DEBUG
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT) {
+#else 
+int main() {
+#endif // WINDOWS_APP
 	if(!glfwInit()) {
 		throw std::runtime_error("Failed to init GLFW!");
 		return EXIT_FAILURE;
