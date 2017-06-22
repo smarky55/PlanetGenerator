@@ -87,24 +87,6 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="basic_fragment.glsl">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="basic_vertex.glsl">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="shading_fragment.glsl">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="shading_vertex.glsl">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="atmosphere_vertex.glsl">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="atmosphere_fragment.glsl">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="planet_vertex.glsl">
       <Filter>Resource Files</Filter>
     </None>
