@@ -195,6 +195,7 @@ xcopy /Y "$(ProjectDir)*.glsl" "$(TargetDir)"</Command>
     <ClCompile Include="Noise3d.cpp" />
     <ClCompile Include="OrbitCamera.cpp" />
     <ClCompile Include="Planet.cpp" />
+    <ClCompile Include="shaders.cpp" />
     <ClCompile Include="xxhash.c" />
   </ItemGroup>
   <ItemGroup>
@@ -215,6 +216,14 @@ xcopy /Y "$(ProjectDir)*.glsl" "$(TargetDir)"</Command>
   </ItemGroup>
   <ItemGroup>
     <None Include="classicnoise3D.glsl" />
+    <None Include="cube_fragment.glsl">
+      <SubType>
+      </SubType>
+    </None>
+    <None Include="cube_vertex.glsl">
+      <SubType>
+      </SubType>
+    </None>
     <None Include="planet_fragment.glsl">
       <SubType>
       </SubType>

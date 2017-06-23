@@ -7,13 +7,16 @@
 
 #include "Camera.h"
 #include "FaceTree.h"
+#include "shaders.h"
 
 class Planet{
 	GLuint VertexBuffer, ColourBuffer, NormalBuffer, IndexBuffer, AtmoIndBuffer;
 	size_t Seed;
 	std::vector<FaceTree*> Faces;
+	GLuint planetTexture;
 	
 	void genIndices(unsigned depth);
+	void genTexture();
 public:
 	Planet(size_t seed, unsigned depth=0);
 	~Planet();

@@ -45,6 +45,9 @@
     <ClCompile Include="OrbitCamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="shaders.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="controls.h">
@@ -97,6 +100,12 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="classicnoise3D.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="cube_vertex.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="cube_fragment.glsl">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

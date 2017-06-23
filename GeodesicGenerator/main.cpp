@@ -265,7 +265,7 @@ int main() {
 		3,5,7
 	};*/
 
-	geo = new Planet(76);
+	geo = new Planet(76, 6);
 
 	OrbitCamera cam = OrbitCamera(glm::vec3(0));
 	camera = &cam;
@@ -293,7 +293,7 @@ int main() {
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glUseProgram(programID);
+		//glUseProgram(programID);
 		
 		camera->update();
 
