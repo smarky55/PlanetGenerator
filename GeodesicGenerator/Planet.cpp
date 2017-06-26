@@ -119,11 +119,12 @@ void Planet::genTexture() {
 	glDisableVertexAttribArray(vertPosID);
 
 	glEnable(GL_CULL_FACE);
-
+	
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glDeleteFramebuffers(1, &frameBuffer);
 	glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+	glDeleteProgram(programID);
 }
 
 Planet::Planet(size_t seed = 0, unsigned depth) : mesh(seed) {
@@ -186,13 +187,15 @@ Planet::~Planet() {
 	glDeleteBuffers(1, &ColourBuffer);
 	glDeleteBuffers(1, &NormalBuffer);
 	glDeleteBuffers(1, &IndexBuffer);
+
+	glDeleteTextures(1, &planetTexture);
 }
 
 void Planet::draw(GLuint programID, Camera* camera) {
 	glUseProgram(programID);
 
 	//glm::rotate(-acos(glm::dot(Vertices[0], glm::vec3(0,1,0))), glm::vec3(1,0,0)) *
-	glm::mat4 model = glm::translate(glm::vec3(0, 0, 0));// *glm::rotate(glm::radians(-23.5f), glm::vec3(1, 0, 0)) *glm::rotate(((float)glfwGetTime() * 2 * glm::pi<float>()) / 60, glm::vec3(0, 1, 0));
+	glm::mat4 model = glm::translate(glm::vec3(0, 0, 0)) * glm::rotate(glm::radians(-23.5f), glm::vec3(1, 0, 0)) *glm::rotate(((float)glfwGetTime() * 2 * glm::pi<float>()) / 60, glm::vec3(0, 1, 0));
 	glm::mat4 view = camera->getViewMatrix();
 	glm::mat4 projection = camera->getProjectionMatrix();
 	glm::mat4 MVP = projection * view * model;
