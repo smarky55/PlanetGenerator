@@ -35,13 +35,13 @@ void Planet::genIndices(unsigned depth) {
 	glBufferData(GL_ARRAY_BUFFER, AtmoIndices.size() * sizeof(unsigned), AtmoIndices.data(), GL_STATIC_DRAW);
 }
 
-void Planet::genTexture() {
+void Planet::genTexture(sCubeMapProps properties) {
 	GLuint frameBuffer;
 	glGenFramebuffers(1, &frameBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 
-	glGenTextures(1, &planetTexture);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, planetTexture);
+	glGenTextures(1, properties.texture);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, *properties.texture);
 
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, 0);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 0);
@@ -51,20 +51,22 @@ void Planet::genTexture() {
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	size_t TEXTURE_SIZE = 1024;
+	size_t TEXTURE_SIZE = properties.texture_size;
 
 	std::vector<GLubyte> testData(TEXTURE_SIZE * TEXTURE_SIZE * 4, 128);
 	std::vector<GLubyte> xData(TEXTURE_SIZE * TEXTURE_SIZE * 4, 255);
 
 	for(size_t i = 0; i < 6; i++) {
 		if(i) {
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA8, TEXTURE_SIZE, TEXTURE_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE, &testData[0]);
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, properties.internal_format, 
+						 TEXTURE_SIZE, TEXTURE_SIZE, 0, properties.format, GL_UNSIGNED_BYTE, &testData[0]);
 		} else {
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA8, TEXTURE_SIZE, TEXTURE_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE, &xData[0]);
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, properties.internal_format,
+						 TEXTURE_SIZE, TEXTURE_SIZE, 0, properties.format, GL_UNSIGNED_BYTE, &xData[0]);
 		}
 	}
 
-	GLuint programID = LoadShaders("cube_vertex.glsl", "cube_fragment.glsl");
+	GLuint programID = LoadShaders(properties.vertex_file_path, properties.fragment_file_path);
 
 	glm::mat4 View, Projection, VP;
 	Projection = glm::perspective(glm::pi<float>()/2+0.000001f, 1.0f, 0.1f, 10.0f);
@@ -103,7 +105,7 @@ void Planet::genTexture() {
 	glClearColor(0, 0, 0, 0);
 
 	for(size_t i = 0; i < 6; i++) {
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, planetTexture, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, *properties.texture, 0);
 		if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
 			throw std::runtime_error("Framebuffer attachment failed for cubemap rendering");
 		}
@@ -174,8 +176,23 @@ Planet::Planet(size_t seed = 0, unsigned depth) : mesh(seed) {
 	glGenBuffers(1, &AtmoIndBuffer);
 
 	genIndices(depth);
+	sCubeMapProps textureProps;
+	textureProps.texture = &planetTexture;
+	textureProps.vertex_file_path = "cube_vertex.glsl";
+	textureProps.fragment_file_path = "cube_fragment.glsl";
+	genTexture(textureProps);
 
-	genTexture();
+	textureProps.texture = &normalMap;
+	textureProps.fragment_file_path = "normal_fragment.glsl";
+	textureProps.internal_format = GL_RGB8;
+	textureProps.format = GL_RGB;
+	genTexture(textureProps);
+
+	textureProps.texture = &heightMap;
+	textureProps.fragment_file_path = "height_fragment.glsl";
+	textureProps.internal_format = GL_R8;
+	textureProps.format = GL_RED;
+	genTexture(textureProps);
 }
 
 
@@ -195,15 +212,16 @@ void Planet::draw(GLuint programID, Camera* camera) {
 	glUseProgram(programID);
 
 	//glm::rotate(-acos(glm::dot(Vertices[0], glm::vec3(0,1,0))), glm::vec3(1,0,0)) *
-	glm::mat4 model = glm::translate(glm::vec3(0, 0, 0)) * glm::rotate(glm::radians(-23.5f), glm::vec3(1, 0, 0)) *glm::rotate(((float)glfwGetTime() * 2 * glm::pi<float>()) / 60, glm::vec3(0, 1, 0));
+	glm::mat4 model = glm::translate(glm::vec3(0, 0, 0)) *glm::rotate(glm::radians(-23.5f), glm::vec3(1, 0, 0)) *glm::rotate(((float)glfwGetTime() * 2 * glm::pi<float>()) / 60, glm::vec3(0, 1, 0));
 	glm::mat4 view = camera->getViewMatrix();
 	glm::mat4 projection = camera->getProjectionMatrix();
 	glm::mat4 MVP = projection * view * model;
 
-	GLuint vertPosID, mvpID, textureID;
+	GLuint vertPosID, mvpID, textureID, normalMapID;
 	vertPosID = glGetAttribLocation(programID, "vertex_position");
 	mvpID = glGetUniformLocation(programID, "MVP");
 	textureID = glGetUniformLocation(programID, "cube_texture");
+	normalMapID = glGetUniformLocation(programID, "normal_map");
 
 	GLuint normPosID, mID, lightDirID, lightColID, lightPowID, camPosID, isAtmosID, seedID;
 	normPosID = glGetAttribLocation(programID, "vertex_normal");
@@ -229,9 +247,12 @@ void Planet::draw(GLuint programID, Camera* camera) {
 	glUniform1i(seedID, Seed);
 
 	glUniform1i(textureID, 0);
-
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, planetTexture);
+
+	glUniform1i(normalMapID, 1);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, normalMap);
 
 	glEnableVertexAttribArray(vertPosID);
 	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);

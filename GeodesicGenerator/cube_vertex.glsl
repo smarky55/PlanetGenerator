@@ -4,10 +4,10 @@ in vec3 vertex_position;
 
 uniform mat4 VP;
 
-out vec3 vertex_worldspace;
+out vec3 vertex_modelspace;
 
 void main() {
 	gl_Position = VP * vec4(vertex_position, 1);
 
-	vertex_worldspace = vertex_position;
+	vertex_modelspace = vertex_position;
 }

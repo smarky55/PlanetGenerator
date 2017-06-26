@@ -224,6 +224,14 @@ xcopy /Y "$(ProjectDir)*.glsl" "$(TargetDir)"</Command>
       <SubType>
       </SubType>
     </None>
+    <None Include="height_fragment.glsl">
+      <SubType>
+      </SubType>
+    </None>
+    <None Include="normal_fragment.glsl">
+      <SubType>
+      </SubType>
+    </None>
     <None Include="planet_fragment.glsl">
       <SubType>
       </SubType>

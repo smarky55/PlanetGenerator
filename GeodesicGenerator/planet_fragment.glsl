@@ -14,6 +14,7 @@ uniform bool isAtmos;
 uniform int Seed;
 
 uniform samplerCube cube_texture;
+uniform samplerCube normal_map;
 
 out vec3 color;
 
@@ -28,7 +29,7 @@ void main() {
 	f_colour = texture(cube_texture, vertex_modelspace);
 
 	vec3 light_dir_norm = normalize(light_direction);
-	float cos_theta = clamp(dot(normal_worldspace, light_dir_norm), 0, 1);
+	float cos_theta = clamp(dot(texture(normal_map, vertex_modelspace).rgb, light_dir_norm), 0, 1);
 
 	vec3 reflection_direction = reflect(-light_dir_norm, normal_worldspace);
 
