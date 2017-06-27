@@ -228,7 +228,11 @@ int main() {
 
 	//GLuint programID = LoadShaders("basic_vertex.glsl", "basic_fragment.glsl");
 	//GLuint programID = LoadShaders("shading_vertex.glsl", "shading_fragment.glsl");
-	GLuint programID = LoadShaders("planet_vertex.glsl", "planet_fragment.glsl");
+	//GLuint programID = LoadShaders("planet_vertex.glsl", "planet_fragment.glsl");
+	ShaderProgram mainProgram = ShaderProgram();
+	mainProgram.addStage(GL_VERTEX_SHADER, "planet_vertex.glsl");
+	mainProgram.addStage(GL_FRAGMENT_SHADER, "planet_fragment.glsl");
+	mainProgram.linkProgram();
 
 	/*float cubeVertices[] = {
 		-1, -1, -1,
@@ -297,7 +301,7 @@ int main() {
 		
 		camera->update();
 
-		geo->draw(programID, camera);
+		geo->draw(mainProgram.programID, camera);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
