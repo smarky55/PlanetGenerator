@@ -66,7 +66,11 @@ void Planet::genTexture(sCubeMapProps properties) {
 		}
 	}
 
-	GLuint programID = LoadShaders(properties.vertex_file_path, properties.fragment_file_path);
+	ShaderProgram program = ShaderProgram();
+	program.addStage(GL_VERTEX_SHADER, properties.vertex_file_path);
+	program.addStage(GL_FRAGMENT_SHADER, properties.fragment_file_path);
+	program.linkProgram();
+	GLuint programID = program.programID; // Compatablity
 
 	glm::mat4 View, Projection, VP;
 	Projection = glm::perspective(glm::pi<float>()/2+0.000001f, 1.0f, 0.1f, 10.0f);
