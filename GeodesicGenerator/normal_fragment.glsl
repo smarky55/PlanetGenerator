@@ -64,7 +64,7 @@ float get_height(vec3 vertex) {
 	return height;
 }
 
-const float height_scale = 0.05;
+const float height_scale = 1.0;
 
 void main() {
 	float height = get_height(vertex_modelspace);
@@ -82,5 +82,5 @@ void main() {
 	vec3 grad_phi = vert_dphi * (1 + height_dphi * height_scale) 
 		- vertex_modelspace * (1 + height * height_scale);
 	
-	color =  (normalize(cross(grad_theta, grad_phi)) + 1) * 0.5;
+	color =  (normalize(cross(grad_phi, grad_theta)) + 1) * 0.5;
 }
