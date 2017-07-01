@@ -17,7 +17,7 @@ public:
 	GLint programID;
 	ShaderProgram();
 	~ShaderProgram();
-
+	bool isLinked() { return hasLinked; }
 	void addStage(GLenum stage, const char * file_path);
 	void linkProgram();
 };

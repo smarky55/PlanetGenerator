@@ -93,6 +93,8 @@ void ShaderProgram::linkProgram() {
 			throw std::runtime_error("Error when linking shader");
 		}
 
+		hasLinked = true;
+
 		for each (GLuint shaderID in shaderStages) {
 			glDeleteShader(shaderID);
 		}

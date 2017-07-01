@@ -1,4 +1,4 @@
-#version 330 core
+#version 400 core
 
 in vec3 vertex_modelspace;
 
@@ -18,11 +18,15 @@ const vec3 brown_mountain = vec3(0.26, 0.14, 0.03);
 const float sea_offset = 0.55;
 const float mountain_offset = 0.7;
 
+const double sinx = 0.0499792;
+const double cosx = 9.998750e-1;
+
 vec3 cartesian_to_polar(vec3 cart) {
 	vec3 polar;
 	float xx = cart.x*cart.x;
-	float yy = cart.z*cart.z;
-	polar.x = sqrt(xx + yy + cart.y*cart.y); //r
+	float zz = cart.z*cart.z;
+	float yy = cart.y*cart.y;
+	polar.x = sqrt(xx+yy+zz); //r
 	polar.y = atan(cart.z , cart.x); // theta
 	polar.z = acos(cart.y / polar.x); // phi
 
@@ -32,11 +36,38 @@ vec3 cartesian_to_polar(vec3 cart) {
 vec3 polar_to_cartesian(vec3 polar) {
 	vec3 cart;
 	float sinphi = sin(polar.z);
-	cart.x = polar.x * cos(polar.y) * sinphi;
-	cart.z = polar.x * sin(polar.y) * sinphi;
-	cart.y = polar.x * cos(polar.z);
+	cart.x = polar.x * cos(polar.y) * sinphi; // r * cos(theta) * sin(phi)
+	cart.z = polar.x * sin(polar.y) * sinphi; // r * sin(theta) * sin(phi)
+	cart.y = polar.x * cos(polar.z); // r * cos(phi)
 
 	return cart;
+}
+
+dvec4 rot_quart(dvec3 axis) {
+	dvec4 q = dvec4(0);
+	q.x = axis.x * sinx;
+	q.y = axis.y * sinx;
+	q.z = axis.z * sinx;
+	q.w = cosx;
+	return q;
+}
+
+dmat3 rotate(dvec3 axis) {
+	dvec4 q = rot_quart(normalize(axis));
+	dmat3 rot;
+	rot[0] = dvec4(1 - 2 * q.y*q.y - 2 * q.z*q.z, 2 * q.x*q.y - 2 * q.z*q.w, 2 * q.x*q.z + 2 * q.y*q.w);
+	rot[1] = dvec4(2 * q.x*q.y + 2 * q.z*q.w, 1 - 2 * q.x*q.x - 2 * q.z*q.z, 2 * q.y*q.z - 2 * q.x*q.w);
+	rot[2] = dvec4(2 * q.x*q.z - 2 * q.y*q.w, 2 * q.y*q.z + 2 * q.x*q.w, 1 - 2 * q.x*q.x - 2 * q.y*q.y);
+	return rot;
+}
+
+mat4 rot90y() {
+	mat4 rot;
+	rot[0] = vec4(0, 0, 1, 0);
+	rot[1] = vec4(0, 1, 0, 0);
+	rot[2] = vec4(-1, 0, 0, 0);
+	rot[3] = vec4(0, 0, 0, 1);
+	return rot;
 }
 
 
@@ -64,23 +95,31 @@ float get_height(vec3 vertex) {
 	return height;
 }
 
-const float height_scale = 1.0;
+const float height_scale = 0.05;
+const float step = 0.01;
 
 void main() {
-	float height = get_height(vertex_modelspace);
+	vec3 vertex = normalize(vertex_modelspace);
+	//float height = get_height(vertex);
 
-	vec3 vert_polar = cartesian_to_polar(vertex_modelspace);
+
+	vec3 vert_polar = cartesian_to_polar(vertex);
 	
-	vec3 vert_dtheta = polar_to_cartesian(vert_polar + vec3(0, 0.0001, 0));
-	float height_dtheta = get_height(vert_dtheta);
+	//vec3 vert_dtheta = polar_to_cartesian(vert_polar + vec3(0, step, 0));
+	vec3 vert_dtheta = vec3(rotate(dvec3(0, 1, 0)) * vertex);
+	//float height_dtheta = get_height(vert_dtheta);
 
-	vec3 vert_dphi = polar_to_cartesian(vert_polar + vec3(0, 0, 0.0001));
-	float height_dphi = get_height(vert_dphi);
+	//vec3 vert_dphi = polar_to_cartesian(vert_polar + vec3(0, 0, step));
+	vec3 vert_dphi = vec3(rotate(dvec3((rot90y() * vec4(normalize(vec3(vertex.x, 0, vertex.z)), 1)).xyz))
+						   * vertex);
+	//float height_dphi = get_height(vert_dphi);
 
-	vec3 grad_theta = vert_dtheta * (1 + height_dtheta * height_scale) 
-		- vertex_modelspace * (1 + height * height_scale);
-	vec3 grad_phi = vert_dphi * (1 + height_dphi * height_scale) 
-		- vertex_modelspace * (1 + height * height_scale);
+	vec3 grad_theta = vert_dtheta //* (1 + height_dtheta * height_scale) 
+		- vertex;// *(1 + height * height_scale);
+	vec3 grad_phi = vert_dphi// * (1 + height_dphi * height_scale)
+		- vertex;// *(1 + height * height_scale);
 	
-	color =  (normalize(cross(grad_phi, grad_theta)) + 1) * 0.5;
+	color = (normalize(cross(grad_phi, grad_theta)) + 1) * 0.5;
+	color = (normalize(grad_phi)+ 1) * 0.5;
+	//color = vert_polar.xxx;
 }

@@ -216,10 +216,11 @@ void Planet::draw(GLuint programID, Camera* camera) {
 	glUseProgram(programID);
 
 	//glm::rotate(-acos(glm::dot(Vertices[0], glm::vec3(0,1,0))), glm::vec3(1,0,0)) *
-	glm::mat4 model = glm::translate(glm::vec3(0, 0, 0)) *glm::rotate(glm::radians(-23.5f), glm::vec3(1, 0, 0)) *glm::rotate(((float)glfwGetTime() * 2 * glm::pi<float>()) / 60, glm::vec3(0, 1, 0));
+	glm::mat4 model = glm::translate(glm::vec3(0, 0, 0));// *glm::rotate(glm::radians(-23.5f), glm::vec3(1, 0, 0)) *glm::rotate(((float)glfwGetTime() * 2 * glm::pi<float>()) / 60, glm::vec3(0, 1, 0));
 	glm::mat4 view = camera->getViewMatrix();
 	glm::mat4 projection = camera->getProjectionMatrix();
 	glm::mat4 MVP = projection * view * model;
+	Model = model;
 
 	GLuint vertPosID, mvpID, textureID, normalMapID;
 	vertPosID = glGetAttribLocation(programID, "vertex_position");
@@ -283,5 +284,49 @@ void Planet::draw(GLuint programID, Camera* camera) {
 	glDisableVertexAttribArray(vertPosID);
 	//glDisableVertexAttribArray(normPosID);
 }
+
+
+#ifdef _DEBUG
+void Planet::drawNormals(Camera * camera) {
+	static ShaderProgram program = ShaderProgram();
+	if(!program.isLinked()) {
+		program.addStage(GL_VERTEX_SHADER, "passthrough_vertex.glsl");
+		program.addStage(GL_GEOMETRY_SHADER, "normals_geometry.glsl");
+		program.addStage(GL_FRAGMENT_SHADER, "passthrough_fragment.glsl");
+		program.linkProgram();
+	}
+	glUseProgram(program.programID);
+	glm::mat4 model = Model;
+	glm::mat4 view = camera->getViewMatrix();
+	glm::mat4 projection = camera->getProjectionMatrix();
+	glm::mat4 MVP = projection * view * model;
+
+	GLuint vertposID, normalmapID, normallengthID, mvpID;
+
+	vertposID = glGetAttribLocation(program.programID, "vertex_position");
+	normalmapID = glGetUniformLocation(program.programID, "normal_map");
+	normallengthID = glGetUniformLocation(program.programID, "normal_length");
+	mvpID = glGetUniformLocation(program.programID, "MVP");
+
+	float normalLength = 0.1f;
+	glUniformMatrix4fv(mvpID, 1, GL_FALSE, &MVP[0][0]);
+	glUniform1f(normallengthID, normalLength);
+
+	glUniform1i(normalmapID, 0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, normalMap);
+
+	glEnableVertexAttribArray(vertposID);
+	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
+	glVertexAttribPointer(vertposID, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer);
+
+	glDrawElements(GL_TRIANGLES, Indices.size(), GL_UNSIGNED_INT, nullptr);
+
+	glDisableVertexAttribArray(vertposID);
+}
+#endif // DEBUG
+
 
 

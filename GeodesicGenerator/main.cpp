@@ -7,6 +7,7 @@
 #include <gl\glew.h>
 #include <GLFW\glfw3.h>
 
+#define GLM_FORCE_RADIANS
 #include <glm\glm.hpp>
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -172,8 +173,8 @@ int main() {
 	}
 
 	glfwWindowHint(GLFW_SAMPLES, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 #ifdef _DEBUG
@@ -266,7 +267,7 @@ int main() {
 		3,5,7
 	};*/
 
-	geo = new Planet(76, 6);
+	geo = new Planet(76, 3);
 
 	OrbitCamera cam = OrbitCamera(glm::vec3(0));
 	camera = &cam;
@@ -299,6 +300,7 @@ int main() {
 		camera->update();
 
 		geo->draw(mainProgram.programID, camera);
+		geo->drawNormals(camera);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

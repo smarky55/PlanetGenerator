@@ -114,5 +114,14 @@
     <None Include="normal_fragment.glsl">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="passthrough_vertex.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="normals_geometry.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="passthrough_fragment.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

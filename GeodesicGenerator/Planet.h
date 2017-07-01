@@ -23,6 +23,7 @@ class Planet{
 	size_t Seed;
 	std::vector<FaceTree*> Faces;
 	GLuint planetTexture, heightMap, normalMap;
+	glm::mat4 Model = glm::translate(glm::vec3(0));
 	
 	void genIndices(unsigned depth);
 	void genTexture(sCubeMapProps properties);
@@ -39,5 +40,9 @@ public:
 	std::vector<unsigned> AtmoIndices;
 
 	void draw(GLuint programID, Camera* camera);
+#ifdef _DEBUG
+	void drawNormals(Camera* camera);
+#endif // _DEBUG
+
 };
 
