@@ -17,6 +17,7 @@ class ShaderProgram {
 	void printErrors(GLenum stage, std::vector<char>& errorMessage, std::vector<std::string>& lines);
 public:
 	GLint programID;
+	bool isLinked() { return hasLinked; }
 	ShaderProgram();
 	~ShaderProgram();
 
