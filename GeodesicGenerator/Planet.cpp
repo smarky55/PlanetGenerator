@@ -188,7 +188,7 @@ Planet::Planet(size_t seed = 0, unsigned depth) : mesh(seed) {
 
 	textureProps.texture = &normalMap;
 	textureProps.fragment_file_path = "normal_fragment.glsl";
-	textureProps.internal_format = GL_RGB8;
+	textureProps.internal_format = GL_RGB32F;
 	textureProps.format = GL_RGB;
 	genTexture(textureProps);
 
