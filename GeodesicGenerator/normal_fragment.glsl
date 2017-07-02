@@ -55,18 +55,32 @@ dvec4 rot_quart(dvec3 axis) {
 dmat3 rotate(dvec3 axis) {
 	dvec4 q = rot_quart(normalize(axis));
 	dmat3 rot;
-	rot[0] = dvec4(1 - 2 * q.y*q.y - 2 * q.z*q.z, 2 * q.x*q.y - 2 * q.z*q.w, 2 * q.x*q.z + 2 * q.y*q.w);
-	rot[1] = dvec4(2 * q.x*q.y + 2 * q.z*q.w, 1 - 2 * q.x*q.x - 2 * q.z*q.z, 2 * q.y*q.z - 2 * q.x*q.w);
-	rot[2] = dvec4(2 * q.x*q.z - 2 * q.y*q.w, 2 * q.y*q.z + 2 * q.x*q.w, 1 - 2 * q.x*q.x - 2 * q.y*q.y);
+	rot[0] = dvec3(1 - 2 * (q.y*q.y + q.z*q.z), 
+				   2 * (q.x*q.y - q.z*q.w), 
+				   2 * (q.x*q.z + q.y*q.w));
+	rot[1] = dvec3(2 * (q.x*q.y + q.z*q.w), 
+				   1 - 2 * (q.x*q.x + q.z*q.z),
+				   2 * (q.y*q.z - q.x*q.w));
+	rot[2] = dvec3(2 * (q.x*q.z - q.y*q.w),
+				   2 * (q.y*q.z + q.x*q.w), 
+				   1 - 2 * (q.x*q.x + q.y*q.y));
 	return rot;
 }
 
-mat4 rot90y() {
-	mat4 rot;
-	rot[0] = vec4(0, 0, 1, 0);
-	rot[1] = vec4(0, 1, 0, 0);
-	rot[2] = vec4(-1, 0, 0, 0);
-	rot[3] = vec4(0, 0, 0, 1);
+dmat3 rot90(dvec3 axis) {
+	dvec4 q = dvec4(axis, 0);
+	dmat3 rot;
+	rot[0] = dvec3(1 - 2 * q.y*q.y - 2 * q.z*q.z, 2 * q.x*q.y - 2 * q.z*q.w, 2 * q.x*q.z + 2 * q.y*q.w);
+	rot[1] = dvec3(2 * q.x*q.y + 2 * q.z*q.w, 1 - 2 * q.x*q.x - 2 * q.z*q.z, 2 * q.y*q.z - 2 * q.x*q.w);
+	rot[2] = dvec3(2 * q.x*q.z - 2 * q.y*q.w, 2 * q.y*q.z + 2 * q.x*q.w, 1 - 2 * q.x*q.x - 2 * q.y*q.y);
+	return rot;
+}
+
+mat3 rot90y() {
+	mat3 rot;
+	rot[0] = vec3(0, 0, 1);
+	rot[1] = vec3(0, 1, 0);
+	rot[2] = vec3(-1, 0, 0);
 	return rot;
 }
 
@@ -110,7 +124,7 @@ void main() {
 	//float height_dtheta = get_height(vert_dtheta);
 
 	//vec3 vert_dphi = polar_to_cartesian(vert_polar + vec3(0, 0, step));
-	vec3 vert_dphi = vec3(rotate(dvec3((rot90y() * vec4(normalize(vec3(vertex.x, 0, vertex.z)), 1)).xyz))
+	vec3 vert_dphi = vec3(rotate(rot90y() * normalize(vec3(vertex.x, 0, vertex.z)))
 						   * vertex);
 	//float height_dphi = get_height(vert_dphi);
 
@@ -118,8 +132,8 @@ void main() {
 		- vertex;// *(1 + height * height_scale);
 	vec3 grad_phi = vert_dphi// * (1 + height_dphi * height_scale)
 		- vertex;// *(1 + height * height_scale);
-	
+
 	color = (normalize(cross(grad_phi, grad_theta)) + 1) * 0.5;
-	color = (normalize(grad_phi)+ 1) * 0.5;
+	color = normalize(grad_phi);
 	//color = vert_polar.xxx;
 }
