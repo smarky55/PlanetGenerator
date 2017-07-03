@@ -35,13 +35,13 @@ void Planet::genIndices(unsigned depth) {
 	glBufferData(GL_ARRAY_BUFFER, AtmoIndices.size() * sizeof(unsigned), AtmoIndices.data(), GL_STATIC_DRAW);
 }
 
-void Planet::genTexture() {
+void Planet::genTexture(sCubeMapProps properties) {
 	GLuint frameBuffer;
 	glGenFramebuffers(1, &frameBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 
-	glGenTextures(1, &planetTexture);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, planetTexture);
+	glGenTextures(1, properties.texture);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, *properties.texture);
 
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, 0);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 0);
@@ -51,31 +51,37 @@ void Planet::genTexture() {
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	size_t TEXTURE_SIZE = 1024;
+	size_t TEXTURE_SIZE = properties.texture_size;
 
 	std::vector<GLubyte> testData(TEXTURE_SIZE * TEXTURE_SIZE * 4, 128);
 	std::vector<GLubyte> xData(TEXTURE_SIZE * TEXTURE_SIZE * 4, 255);
 
 	for(size_t i = 0; i < 6; i++) {
 		if(i) {
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA8, TEXTURE_SIZE, TEXTURE_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE, &testData[0]);
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, properties.internal_format, 
+						 TEXTURE_SIZE, TEXTURE_SIZE, 0, properties.format, GL_UNSIGNED_BYTE, &testData[0]);
 		} else {
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA8, TEXTURE_SIZE, TEXTURE_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE, &xData[0]);
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, properties.internal_format,
+						 TEXTURE_SIZE, TEXTURE_SIZE, 0, properties.format, GL_UNSIGNED_BYTE, &xData[0]);
 		}
 	}
 
-	GLuint programID = LoadShaders("cube_vertex.glsl", "cube_fragment.glsl");
+	ShaderProgram program = ShaderProgram();
+	program.addStage(GL_VERTEX_SHADER, properties.vertex_file_path);
+	program.addStage(GL_FRAGMENT_SHADER, properties.fragment_file_path);
+	program.linkProgram();
+	GLuint programID = program.programID; // Compatablity
 
 	glm::mat4 View, Projection, VP;
 	Projection = glm::perspective(glm::pi<float>()/2+0.000001f, 1.0f, 0.1f, 10.0f);
 	std::vector<glm::vec3> dirs = {
-		glm::vec3(-1,0,0), glm::vec3(1,0,0),
+		glm::vec3(1,0,0), glm::vec3(-1,0,0),
 		glm::vec3(0,1,0), glm::vec3(0,-1,0),
-		glm::vec3(0,0,-1), glm::vec3(0,0,1)
+		glm::vec3(0,0,1), glm::vec3(0,0,-1)
 	};
 	std::vector<glm::vec3> ups = {
 		glm::vec3(0,-1,0), glm::vec3(0,-1,0),
-		glm::vec3(0,0,-1), glm::vec3(0,0,1),
+		glm::vec3(0,0,1), glm::vec3(0,0,-1),
 		glm::vec3(0,-1,0),glm::vec3(0,-1,0)
 	};
 
@@ -103,7 +109,7 @@ void Planet::genTexture() {
 	glClearColor(0, 0, 0, 0);
 
 	for(size_t i = 0; i < 6; i++) {
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, planetTexture, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, *properties.texture, 0);
 		if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
 			throw std::runtime_error("Framebuffer attachment failed for cubemap rendering");
 		}
@@ -174,8 +180,23 @@ Planet::Planet(size_t seed = 0, unsigned depth) : mesh(seed) {
 	glGenBuffers(1, &AtmoIndBuffer);
 
 	genIndices(depth);
+	sCubeMapProps textureProps;
+	textureProps.texture = &planetTexture;
+	textureProps.vertex_file_path = "cube_vertex.glsl";
+	textureProps.fragment_file_path = "cube_fragment.glsl";
+	genTexture(textureProps);
 
-	genTexture();
+	textureProps.texture = &normalMap;
+	textureProps.fragment_file_path = "normal_fragment.glsl";
+	textureProps.internal_format = GL_RGB32F;
+	textureProps.format = GL_RGB;
+	genTexture(textureProps);
+
+	textureProps.texture = &heightMap;
+	textureProps.fragment_file_path = "height_fragment.glsl";
+	textureProps.internal_format = GL_R8;
+	textureProps.format = GL_RED;
+	genTexture(textureProps);
 }
 
 
@@ -187,26 +208,31 @@ Planet::~Planet() {
 	glDeleteBuffers(1, &ColourBuffer);
 	glDeleteBuffers(1, &NormalBuffer);
 	glDeleteBuffers(1, &IndexBuffer);
+	glDeleteBuffers(1, &AtmoIndBuffer);
 
 	glDeleteTextures(1, &planetTexture);
+	glDeleteTextures(1, &normalMap);
+	glDeleteTextures(1, &heightMap);
 }
 
 void Planet::draw(GLuint programID, Camera* camera) {
 	glUseProgram(programID);
 
 	//glm::rotate(-acos(glm::dot(Vertices[0], glm::vec3(0,1,0))), glm::vec3(1,0,0)) *
-	glm::mat4 model = glm::translate(glm::vec3(0, 0, 0)) * glm::rotate(glm::radians(-23.5f), glm::vec3(1, 0, 0)) *glm::rotate(((float)glfwGetTime() * 2 * glm::pi<float>()) / 60, glm::vec3(0, 1, 0));
+	glm::mat4 model = glm::translate(glm::vec3(0, 0, 0)) *glm::rotate(glm::radians(-23.5f), glm::vec3(1, 0, 0)) *glm::rotate(((float)glfwGetTime() * 2 * glm::pi<float>()) / 60, glm::vec3(0, 1, 0));
 	glm::mat4 view = camera->getViewMatrix();
 	glm::mat4 projection = camera->getProjectionMatrix();
 	glm::mat4 MVP = projection * view * model;
+	Model = model;
 
-	GLuint vertPosID, mvpID, textureID;
+	GLuint vertPosID, mvpID, textureID, normalMapID;
 	vertPosID = glGetAttribLocation(programID, "vertex_position");
 	mvpID = glGetUniformLocation(programID, "MVP");
 	textureID = glGetUniformLocation(programID, "cube_texture");
+	normalMapID = glGetUniformLocation(programID, "normal_map");
 
 	GLuint normPosID, mID, lightDirID, lightColID, lightPowID, camPosID, isAtmosID, seedID;
-	normPosID = glGetAttribLocation(programID, "vertex_normal");
+	//normPosID = glGetAttribLocation(programID, "vertex_normal");
 	mID = glGetUniformLocation(programID, "M");
 	lightDirID = glGetUniformLocation(programID, "light_direction");
 	lightColID = glGetUniformLocation(programID, "light_colour");
@@ -229,17 +255,20 @@ void Planet::draw(GLuint programID, Camera* camera) {
 	glUniform1i(seedID, Seed);
 
 	glUniform1i(textureID, 0);
-
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, planetTexture);
+
+	glUniform1i(normalMapID, 1);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, normalMap);
 
 	glEnableVertexAttribArray(vertPosID);
 	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
 	glVertexAttribPointer(vertPosID, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-	glEnableVertexAttribArray(normPosID);
+	/*glEnableVertexAttribArray(normPosID);
 	glBindBuffer(GL_ARRAY_BUFFER, NormalBuffer);
-	glVertexAttribPointer(normPosID, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glVertexAttribPointer(normPosID, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);*/
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer);
 
@@ -256,7 +285,51 @@ void Planet::draw(GLuint programID, Camera* camera) {
 	glDrawElements(GL_TRIANGLES, AtmoIndices.size(), GL_UNSIGNED_INT, nullptr);
 
 	glDisableVertexAttribArray(vertPosID);
-	glDisableVertexAttribArray(normPosID);
+	//glDisableVertexAttribArray(normPosID);
 }
+
+
+#ifdef _DEBUG
+void Planet::drawNormals(Camera * camera) {
+	static ShaderProgram program = ShaderProgram();
+	if(!program.isLinked()) {
+		program.addStage(GL_VERTEX_SHADER, "passthrough_vertex.glsl");
+		program.addStage(GL_GEOMETRY_SHADER, "normals_geometry.glsl");
+		program.addStage(GL_FRAGMENT_SHADER, "passthrough_fragment.glsl");
+		program.linkProgram();
+	}
+	glUseProgram(program.programID);
+	glm::mat4 model = Model;
+	glm::mat4 view = camera->getViewMatrix();
+	glm::mat4 projection = camera->getProjectionMatrix();
+	glm::mat4 MVP = projection * view * model;
+
+	GLuint vertposID, normalmapID, normallengthID, mvpID;
+
+	vertposID = glGetAttribLocation(program.programID, "vertex_position");
+	normalmapID = glGetUniformLocation(program.programID, "normal_map");
+	normallengthID = glGetUniformLocation(program.programID, "normal_length");
+	mvpID = glGetUniformLocation(program.programID, "MVP");
+
+	float normalLength = 0.1f;
+	glUniformMatrix4fv(mvpID, 1, GL_FALSE, &MVP[0][0]);
+	glUniform1f(normallengthID, normalLength);
+
+	glUniform1i(normalmapID, 0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, normalMap);
+
+	glEnableVertexAttribArray(vertposID);
+	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
+	glVertexAttribPointer(vertposID, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer);
+
+	glDrawElements(GL_TRIANGLES, Indices.size(), GL_UNSIGNED_INT, nullptr);
+
+	glDisableVertexAttribArray(vertposID);
+}
+#endif // DEBUG
+
 
 

@@ -1,6 +1,6 @@
 #version 330 core
 
-in vec3 normal_worldspace;
+//in vec3 normal_worldspace;
 in vec3 camera_direction;
 in vec3 vertex_worldspace;
 in vec3 vertex_modelspace;
@@ -14,6 +14,7 @@ uniform bool isAtmos;
 uniform int Seed;
 
 uniform samplerCube cube_texture;
+uniform samplerCube normal_map;
 
 out vec3 color;
 
@@ -27,6 +28,7 @@ void main() {
 
 	f_colour = texture(cube_texture, vertex_modelspace);
 
+	vec3 normal_worldspace = (M * vec4(texture(normal_map, vertex_modelspace).xyz, 0)).xyz;
 	vec3 light_dir_norm = normalize(light_direction);
 	float cos_theta = clamp(dot(normal_worldspace, light_dir_norm), 0, 1);
 

@@ -3,10 +3,12 @@
 #include <vector>
 #include <iostream>
 #include <cstdlib>
+#include <time.h>
 
 #include <gl\glew.h>
 #include <GLFW\glfw3.h>
 
+#define GLM_FORCE_RADIANS
 #include <glm\glm.hpp>
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -147,7 +149,9 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
 	} else if(key == GLFW_KEY_R && action == GLFW_PRESS) {
 		delete geo;
-		geo = new Planet(rand(), 6);
+		int seed = rand();
+		std::cout << seed << std::endl;
+		geo = new Planet(seed, 6);
 	}
 }
 
@@ -172,8 +176,8 @@ int main() {
 	}
 
 	glfwWindowHint(GLFW_SAMPLES, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 #ifdef _DEBUG
@@ -226,9 +230,6 @@ int main() {
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
-	//GLuint programID = LoadShaders("basic_vertex.glsl", "basic_fragment.glsl");
-	//GLuint programID = LoadShaders("shading_vertex.glsl", "shading_fragment.glsl");
-	//GLuint programID = LoadShaders("planet_vertex.glsl", "planet_fragment.glsl");
 	ShaderProgram mainProgram = ShaderProgram();
 	mainProgram.addStage(GL_VERTEX_SHADER, "planet_vertex.glsl");
 	mainProgram.addStage(GL_FRAGMENT_SHADER, "planet_fragment.glsl");
@@ -281,7 +282,7 @@ int main() {
 	int nFrames = 0;
 	lastTime = glfwGetTime();
 
-	srand(lastTime);
+	srand(time(NULL));
 
 	while(!glfwWindowShouldClose(window)) {
 		currentTime = glfwGetTime();
@@ -302,6 +303,7 @@ int main() {
 		camera->update();
 
 		geo->draw(mainProgram.programID, camera);
+		//geo->drawNormals(camera);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
