@@ -9,14 +9,24 @@
 #include "FaceTree.h"
 #include "shaders.h"
 
+struct sCubeMapProps {
+	GLuint *texture;
+	const char* vertex_file_path;
+	const char* fragment_file_path;
+	GLint internal_format = GL_RGBA8;
+	GLint format = GL_RGBA;
+	GLsizei texture_size = 1024;
+};
+
 class Planet{
 	GLuint VertexBuffer, ColourBuffer, NormalBuffer, IndexBuffer, AtmoIndBuffer;
 	size_t Seed;
 	std::vector<FaceTree*> Faces;
-	GLuint planetTexture;
+	GLuint planetTexture, heightMap, normalMap;
+	glm::mat4 Model = glm::translate(glm::vec3(0));
 	
 	void genIndices(unsigned depth);
-	void genTexture();
+	void genTexture(sCubeMapProps properties);
 public:
 	Planet(size_t seed, unsigned depth=0);
 	~Planet();
@@ -30,5 +40,9 @@ public:
 	std::vector<unsigned> AtmoIndices;
 
 	void draw(GLuint programID, Camera* camera);
+#ifdef _DEBUG
+	void drawNormals(Camera* camera);
+#endif // _DEBUG
+
 };
 
