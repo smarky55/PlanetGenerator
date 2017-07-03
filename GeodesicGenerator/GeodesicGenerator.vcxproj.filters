@@ -123,5 +123,8 @@
     <None Include="passthrough_fragment.glsl">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="constants.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

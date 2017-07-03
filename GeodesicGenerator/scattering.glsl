@@ -1,23 +1,5 @@
 //Requires vec3 origin_worldspace declared
 
-const float MAX = 10000.0;
-
-const float K_R = 0.166;
-const float K_M = 0.0025;
-const float E = 14.3; 						// light intensity
-const vec3  C_R = vec3(0.3, 0.7, 1.0); 	// 1 / wavelength ^ 4
-const float G_M = -0.85;
-
-const float PI = 3.14159265359;
-
-const float FNUM_STEPS = 10.0;
-const int NUM_STEPS = 10;
-
-const float R = 1.05;
-const float R_INNER = 0.99;
-const float SCALE_HEIGHT = 1.0 / (0.25 * (R - R_INNER));
-const float SCALE_LENGTH = 1.0 / (R - R_INNER);
-
 vec3 sphere_int(vec3 ray_ori, vec3 ray_dir, vec3 sphere_ori, float rad) {
 	//float a = dot(ray_dir, ray_dir); Assuming ray_dir is normalised a = 1
 	float b = 2 * dot(ray_dir, ray_ori - sphere_ori);

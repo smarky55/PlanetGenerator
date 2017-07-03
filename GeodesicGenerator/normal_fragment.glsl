@@ -8,21 +8,10 @@ out vec3 color;
 
 #include <classicnoise3D.glsl>
 
-const float PI = 3.14159265359;
+#include <constants.glsl>
 
-const vec3 blue_sea = vec3(0, 0.22, 0.48);
-const vec3 green_grass = vec3(0, 0.4, 0);
-const vec3 green_forest = vec3(0.04, 0.25, 0.04);
-const vec3 brown_mountain = vec3(0.26, 0.14, 0.03);
-
-const float sea_offset = 0.55;
-const float mountain_offset = 0.7;
-
-const float height_scale = 0.1;
-const float step = 0.005;
-
-const double sinx = sin(step);
-const double cosx = cos(step);
+const double sinx = sin(grad_step);
+const double cosx = cos(grad_step);
 
 vec3 cartesian_to_polar(vec3 cart) {
 	vec3 polar;

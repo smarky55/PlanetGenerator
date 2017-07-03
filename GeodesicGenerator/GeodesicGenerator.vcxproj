@@ -216,6 +216,10 @@ xcopy /Y "$(ProjectDir)*.glsl" "$(TargetDir)"</Command>
   </ItemGroup>
   <ItemGroup>
     <None Include="classicnoise3D.glsl" />
+    <None Include="constants.glsl">
+      <SubType>
+      </SubType>
+    </None>
     <None Include="cube_fragment.glsl">
       <SubType>
       </SubType>

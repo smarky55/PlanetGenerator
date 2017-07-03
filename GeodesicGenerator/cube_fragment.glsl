@@ -7,16 +7,7 @@ uniform int Seed;
 out vec4 color;
 
 #include <classicnoise3D.glsl>
-
-const float PI = 3.14159265359;
-
-const vec3 blue_sea = vec3(0, 0.22, 0.48);
-const vec3 green_grass = vec3(0, 0.4, 0);
-const vec3 green_forest = vec3(0.04, 0.25, 0.04);
-const vec3 brown_mountain = vec3(0.26, 0.14, 0.03);
-
-const float sea_offset = 0.55;
-const float mountain_offset = 0.7;
+#include <constants.glsl>
 
 vec4 get_colour(vec3 vertex) {
 	int seed = Seed;

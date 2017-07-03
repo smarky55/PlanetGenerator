@@ -20,6 +20,7 @@ out vec3 color;
 
 vec3 origin_worldspace = (M*vec4(0, 0, 0, 1)).xyz;
 
+#include <constants.glsl>
 #include <scattering.glsl>
 
 
