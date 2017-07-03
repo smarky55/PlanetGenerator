@@ -19,7 +19,7 @@ const float sea_offset = 0.55;
 const float mountain_offset = 0.7;
 
 const float height_scale = 0.1;
-const float step = 0.001;
+const float step = 0.005;
 
 const double sinx = sin(step);
 const double cosx = cos(step);
@@ -100,16 +100,10 @@ float get_height(vec3 vertex) {
 	float temp = ((noise(vertex / 0.3, seed++) + 2) / 3) * cos(latitude) * 50 - 20;
 
 	float height;
-	if(pt < sea_offset) {
-		height = 0;
-	} else {
-		height = (pt - sea_offset) / (1 - sea_offset);
-	}
-	/*if(temp < 0) {
-		height *= 1 + temp/10;
-	}*/
+	
+	height = clamp((pt - sea_offset) / (1 - sea_offset), 0, 1);
 
-	return pow(height, 1.7);
+	return pow(height, 1.8);
 }
 
 void main() {

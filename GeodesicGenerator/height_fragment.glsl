@@ -18,7 +18,7 @@ const vec3 brown_mountain = vec3(0.26, 0.14, 0.03);
 const float sea_offset = 0.55;
 const float mountain_offset = 0.7;
 
-float get_colour(vec3 vertex) {
+float get_height(vec3 vertex) {
 	int seed = Seed;
 	float pt = (noise(vertex / 0.75, seed++) * 0.4
 				+ noise(vertex / 0.5, seed++) * 0.5
@@ -30,16 +30,13 @@ float get_colour(vec3 vertex) {
 	float temp = ((noise(vertex / 0.3, seed++) + 2) / 3) * cos(latitude) * 50 - 20;
 
 	float height;
-	if(pt < sea_offset) {
-		height = 0;
-	} else  {
-		height = (pt - sea_offset) / (1 - sea_offset);
-	} 
+	
+	height = clamp((pt - sea_offset) / (1 - sea_offset), 0, 1);
 
-	return height;
+	return pow(height, 1.8);
 }
 
 void main() {
-	float height = get_colour(vertex_modelspace);
+	float height = get_height(vertex_modelspace);
 	color = height;
 }
