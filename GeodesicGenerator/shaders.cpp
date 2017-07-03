@@ -53,7 +53,6 @@ void ShaderProgram::printErrors(GLenum stage, std::vector<char>& errorMessage, s
 		std::cout << (*it2).str() << std::endl;
 		for(auto i = lines.begin() + (index - 2); i != lines.end() && i != lines.begin() + (index + 2); i++) {
 			std::cout << std::distance(lines.begin(), i) + 1 << *i << std::endl;
-
 		}
 		it1++;
 		it2++;
