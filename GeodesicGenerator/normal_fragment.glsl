@@ -18,8 +18,11 @@ const vec3 brown_mountain = vec3(0.26, 0.14, 0.03);
 const float sea_offset = 0.55;
 const float mountain_offset = 0.7;
 
-const double sinx = 0.0499792;
-const double cosx = 9.998750e-1;
+const float height_scale = 0.1;
+const float step = 0.001;
+
+const double sinx = sin(step);
+const double cosx = cos(step);
 
 vec3 cartesian_to_polar(vec3 cart) {
 	vec3 polar;
@@ -102,38 +105,32 @@ float get_height(vec3 vertex) {
 	} else {
 		height = (pt - sea_offset) / (1 - sea_offset);
 	}
-	if(temp < 0) {
-		height *= 1 + temp/20;
-	}
+	/*if(temp < 0) {
+		height *= 1 + temp/10;
+	}*/
 
-	return height;
+	return pow(height, 1.7);
 }
 
-const float height_scale = 0.05;
-const float step = 0.01;
-
 void main() {
-	vec3 vertex = normalize(vertex_modelspace);
-	//float height = get_height(vertex);
+	float height = get_height(vertex_modelspace);
 
 
-	vec3 vert_polar = cartesian_to_polar(vertex);
+	vec3 vert_polar = cartesian_to_polar(vertex_modelspace);
 	
 	//vec3 vert_dtheta = polar_to_cartesian(vert_polar + vec3(0, step, 0));
-	vec3 vert_dtheta = vec3(rotate(dvec3(0, 1, 0)) * vertex);
-	//float height_dtheta = get_height(vert_dtheta);
+	vec3 vert_dtheta = vec3(rotate(dvec3(0, 1, 0)) * vertex_modelspace);
+	float height_dtheta = get_height(vert_dtheta);
 
 	//vec3 vert_dphi = polar_to_cartesian(vert_polar + vec3(0, 0, step));
-	vec3 vert_dphi = vec3(rotate(rot90y() * normalize(vec3(vertex.x, 0, vertex.z)))
-						   * vertex);
-	//float height_dphi = get_height(vert_dphi);
+	vec3 vert_dphi = vec3(rotate(rot90y() * normalize(vec3(vertex_modelspace.x, 0, vertex_modelspace.z)))
+						   * vertex_modelspace);
+	float height_dphi = get_height(vert_dphi);
 
-	vec3 grad_theta = vert_dtheta //* (1 + height_dtheta * height_scale) 
-		- vertex;// *(1 + height * height_scale);
-	vec3 grad_phi = vert_dphi// * (1 + height_dphi * height_scale)
-		- vertex;// *(1 + height * height_scale);
+	vec3 grad_theta = vert_dtheta * (1 + height_dtheta * height_scale) 
+		- vertex_modelspace *(1 + height * height_scale);
+	vec3 grad_phi = vert_dphi * (1 + height_dphi * height_scale)
+		- vertex_modelspace *(1 + height * height_scale);
 
-	color = (normalize(cross(grad_phi, grad_theta)) + 1) * 0.5;
-	color = normalize(grad_phi);
-	//color = vert_polar.xxx;
+	color = normalize(cross(grad_theta, grad_phi));
 }

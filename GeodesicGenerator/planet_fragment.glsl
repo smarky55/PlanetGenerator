@@ -28,7 +28,7 @@ void main() {
 
 	f_colour = texture(cube_texture, vertex_modelspace);
 
-	vec3 normal_worldspace = (M * vec4((texture(normal_map, vertex_modelspace).xyz*2) - 1, 0)).xyz;
+	vec3 normal_worldspace = (M * vec4(texture(normal_map, vertex_modelspace).xyz, 0)).xyz;
 	vec3 light_dir_norm = normalize(light_direction);
 	float cos_theta = clamp(dot(normal_worldspace, light_dir_norm), 0, 1);
 

@@ -75,13 +75,13 @@ void Planet::genTexture(sCubeMapProps properties) {
 	glm::mat4 View, Projection, VP;
 	Projection = glm::perspective(glm::pi<float>()/2+0.000001f, 1.0f, 0.1f, 10.0f);
 	std::vector<glm::vec3> dirs = {
-		glm::vec3(-1,0,0), glm::vec3(1,0,0),
+		glm::vec3(1,0,0), glm::vec3(-1,0,0),
 		glm::vec3(0,1,0), glm::vec3(0,-1,0),
-		glm::vec3(0,0,-1), glm::vec3(0,0,1)
+		glm::vec3(0,0,1), glm::vec3(0,0,-1)
 	};
 	std::vector<glm::vec3> ups = {
 		glm::vec3(0,-1,0), glm::vec3(0,-1,0),
-		glm::vec3(0,0,-1), glm::vec3(0,0,1),
+		glm::vec3(0,0,1), glm::vec3(0,0,-1),
 		glm::vec3(0,-1,0),glm::vec3(0,-1,0)
 	};
 
@@ -208,15 +208,18 @@ Planet::~Planet() {
 	glDeleteBuffers(1, &ColourBuffer);
 	glDeleteBuffers(1, &NormalBuffer);
 	glDeleteBuffers(1, &IndexBuffer);
+	glDeleteBuffers(1, &AtmoIndBuffer);
 
 	glDeleteTextures(1, &planetTexture);
+	glDeleteTextures(1, &normalMap);
+	glDeleteTextures(1, &heightMap);
 }
 
 void Planet::draw(GLuint programID, Camera* camera) {
 	glUseProgram(programID);
 
 	//glm::rotate(-acos(glm::dot(Vertices[0], glm::vec3(0,1,0))), glm::vec3(1,0,0)) *
-	glm::mat4 model = glm::translate(glm::vec3(0, 0, 0));// *glm::rotate(glm::radians(-23.5f), glm::vec3(1, 0, 0)) *glm::rotate(((float)glfwGetTime() * 2 * glm::pi<float>()) / 60, glm::vec3(0, 1, 0));
+	glm::mat4 model = glm::translate(glm::vec3(0, 0, 0)) *glm::rotate(glm::radians(-23.5f), glm::vec3(1, 0, 0)) *glm::rotate(((float)glfwGetTime() * 2 * glm::pi<float>()) / 60, glm::vec3(0, 1, 0));
 	glm::mat4 view = camera->getViewMatrix();
 	glm::mat4 projection = camera->getProjectionMatrix();
 	glm::mat4 MVP = projection * view * model;
