@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include <cstdlib>
+#include <time.h>
 
 #include <gl\glew.h>
 #include <GLFW\glfw3.h>
@@ -148,7 +149,9 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
 	} else if(key == GLFW_KEY_R && action == GLFW_PRESS) {
 		delete geo;
-		geo = new Planet(rand(), 6);
+		int seed = rand();
+		std::cout << seed << std::endl;
+		geo = new Planet(seed, 6);
 	}
 }
 
@@ -267,7 +270,7 @@ int main() {
 		3,5,7
 	};*/
 
-	geo = new Planet(76, 3);
+	geo = new Planet(76, 6);
 
 	OrbitCamera cam = OrbitCamera(glm::vec3(0));
 	camera = &cam;
@@ -279,7 +282,7 @@ int main() {
 	int nFrames = 0;
 	lastTime = glfwGetTime();
 
-	srand(lastTime);
+	srand(time(NULL));
 
 	while(!glfwWindowShouldClose(window)) {
 		currentTime = glfwGetTime();
@@ -300,7 +303,7 @@ int main() {
 		camera->update();
 
 		geo->draw(mainProgram.programID, camera);
-		geo->drawNormals(camera);
+		//geo->drawNormals(camera);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
