@@ -22,9 +22,17 @@ class Planet{
 	GLuint VertexBuffer, ColourBuffer, NormalBuffer, IndexBuffer, AtmoIndBuffer;
 	size_t Seed;
 	std::vector<FaceTree*> Faces;
-	GLuint planetTexture, heightMap, normalMap;
+	//GLuint planetTexture, heightMap, normalMap, cloudMap;
 	glm::mat4 Model = glm::translate(glm::vec3(0));
-	
+	union {
+		GLuint textures[4];
+		struct {
+			GLuint planetTexture;
+			GLuint heightMap;
+			GLuint normalMap;
+			GLuint cloudMap;
+		};
+	};
 	void genIndices(unsigned depth);
 	void genTexture(sCubeMapProps properties);
 public:

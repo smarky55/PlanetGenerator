@@ -126,5 +126,8 @@
     <None Include="constants.glsl">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="cloud_fragment.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -186,6 +186,10 @@ Planet::Planet(size_t seed = 0, unsigned depth) : mesh(seed) {
 	textureProps.fragment_file_path = "cube_fragment.glsl";
 	genTexture(textureProps);
 
+	textureProps.texture = &cloudMap;
+	textureProps.fragment_file_path = "cloud_fragment.glsl";
+	genTexture(textureProps);
+
 	textureProps.texture = &normalMap;
 	textureProps.fragment_file_path = "normal_fragment.glsl";
 	textureProps.internal_format = GL_RGB32F;
@@ -210,9 +214,7 @@ Planet::~Planet() {
 	glDeleteBuffers(1, &IndexBuffer);
 	glDeleteBuffers(1, &AtmoIndBuffer);
 
-	glDeleteTextures(1, &planetTexture);
-	glDeleteTextures(1, &normalMap);
-	glDeleteTextures(1, &heightMap);
+	glDeleteTextures(4, textures);
 }
 
 void Planet::draw(GLuint programID, Camera* camera) {
