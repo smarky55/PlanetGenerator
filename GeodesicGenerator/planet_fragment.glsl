@@ -15,6 +15,7 @@ uniform int Seed;
 
 uniform samplerCube cube_texture;
 uniform samplerCube normal_map;
+uniform samplerCube cloud_map;
 
 out vec3 color;
 
@@ -25,9 +26,10 @@ vec3 origin_worldspace = (M*vec4(0, 0, 0, 1)).xyz;
 
 
 void main() {
-	vec4 f_colour;
-
+	vec4 f_colour, cloud_colour;
+	cloud_colour = texture(cloud_map, vertex_modelspace);
 	f_colour = texture(cube_texture, vertex_modelspace);
+	f_colour = mix(f_colour, vec4(cloud_colour.rgb, 0.1), cloud_colour.a);
 
 	vec3 normal_worldspace = (M * vec4(texture(normal_map, vertex_modelspace).xyz, 0)).xyz;
 	vec3 light_dir_norm = normalize(light_direction);

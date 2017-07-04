@@ -227,11 +227,12 @@ void Planet::draw(GLuint programID, Camera* camera) {
 	glm::mat4 MVP = projection * view * model;
 	Model = model;
 
-	GLuint vertPosID, mvpID, textureID, normalMapID;
+	GLuint vertPosID, mvpID, textureID, normalMapID, cloudMapID;
 	vertPosID = glGetAttribLocation(programID, "vertex_position");
 	mvpID = glGetUniformLocation(programID, "MVP");
 	textureID = glGetUniformLocation(programID, "cube_texture");
 	normalMapID = glGetUniformLocation(programID, "normal_map");
+	cloudMapID = glGetUniformLocation(programID, "cloud_map");
 
 	GLuint normPosID, mID, lightDirID, lightColID, lightPowID, camPosID, isAtmosID, seedID;
 	//normPosID = glGetAttribLocation(programID, "vertex_normal");
@@ -263,6 +264,10 @@ void Planet::draw(GLuint programID, Camera* camera) {
 	glUniform1i(normalMapID, 1);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, normalMap);
+
+	glUniform1i(cloudMapID, 2);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, cloudMap);
 
 	glEnableVertexAttribArray(vertPosID);
 	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);

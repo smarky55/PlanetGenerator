@@ -4,7 +4,7 @@ in vec3 vertex_modelspace;
 
 uniform int Seed;
 
-out vec3 color;
+out vec4 color;
 
 #include <classicnoise3D.glsl>
 #include <constants.glsl>
@@ -12,6 +12,7 @@ out vec3 color;
 void main() {
 	int seed = Seed+20;
 	float pt = noise(vertex_modelspace, seed++);
-	pt = clamp(pt, 0, 1);
-	color = vec3(pt);
+	pt = clamp(pt, 0.5, 1);
+	color = vec4(pt);
+	color.a = color.a * 2 - 1;
 }
