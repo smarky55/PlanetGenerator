@@ -10,8 +10,8 @@ out vec3 color;
 
 #include <constants.glsl>
 
-const double sinx = sin(grad_step);
-const double cosx = cos(grad_step);
+const float sinx = sin(grad_step);
+const float cosx = cos(grad_step);
 
 vec3 cartesian_to_polar(vec3 cart) {
 	vec3 polar;
@@ -35,8 +35,8 @@ vec3 polar_to_cartesian(vec3 polar) {
 	return cart;
 }
 
-dvec4 rot_quart(dvec3 axis) {
-	dvec4 q = dvec4(0);
+vec4 rot_quart(vec3 axis) {
+	vec4 q = vec4(0);
 	q.x = axis.x * sinx;
 	q.y = axis.y * sinx;
 	q.z = axis.z * sinx;
@@ -44,27 +44,27 @@ dvec4 rot_quart(dvec3 axis) {
 	return q;
 }
 
-dmat3 rotate(dvec3 axis) {
-	dvec4 q = rot_quart(normalize(axis));
-	dmat3 rot;
-	rot[0] = dvec3(1 - 2 * (q.y*q.y + q.z*q.z), 
+mat3 rotate(vec3 axis) {
+	vec4 q = rot_quart(normalize(axis));
+	mat3 rot;
+	rot[0] = vec3(1 - 2 * (q.y*q.y + q.z*q.z), 
 				   2 * (q.x*q.y - q.z*q.w), 
 				   2 * (q.x*q.z + q.y*q.w));
-	rot[1] = dvec3(2 * (q.x*q.y + q.z*q.w), 
+	rot[1] = vec3(2 * (q.x*q.y + q.z*q.w), 
 				   1 - 2 * (q.x*q.x + q.z*q.z),
 				   2 * (q.y*q.z - q.x*q.w));
-	rot[2] = dvec3(2 * (q.x*q.z - q.y*q.w),
+	rot[2] = vec3(2 * (q.x*q.z - q.y*q.w),
 				   2 * (q.y*q.z + q.x*q.w), 
 				   1 - 2 * (q.x*q.x + q.y*q.y));
 	return rot;
 }
 
-dmat3 rot90(dvec3 axis) {
-	dvec4 q = dvec4(axis, 0);
-	dmat3 rot;
-	rot[0] = dvec3(1 - 2 * q.y*q.y - 2 * q.z*q.z, 2 * q.x*q.y - 2 * q.z*q.w, 2 * q.x*q.z + 2 * q.y*q.w);
-	rot[1] = dvec3(2 * q.x*q.y + 2 * q.z*q.w, 1 - 2 * q.x*q.x - 2 * q.z*q.z, 2 * q.y*q.z - 2 * q.x*q.w);
-	rot[2] = dvec3(2 * q.x*q.z - 2 * q.y*q.w, 2 * q.y*q.z + 2 * q.x*q.w, 1 - 2 * q.x*q.x - 2 * q.y*q.y);
+mat3 rot90(vec3 axis) {
+	vec4 q = vec4(axis, 0);
+	mat3 rot;
+	rot[0] = vec3(1 - 2 * q.y*q.y - 2 * q.z*q.z, 2 * q.x*q.y - 2 * q.z*q.w, 2 * q.x*q.z + 2 * q.y*q.w);
+	rot[1] = vec3(2 * q.x*q.y + 2 * q.z*q.w, 1 - 2 * q.x*q.x - 2 * q.z*q.z, 2 * q.y*q.z - 2 * q.x*q.w);
+	rot[2] = vec3(2 * q.x*q.z - 2 * q.y*q.w, 2 * q.y*q.z + 2 * q.x*q.w, 1 - 2 * q.x*q.x - 2 * q.y*q.y);
 	return rot;
 }
 
@@ -102,7 +102,7 @@ void main() {
 	vec3 vert_polar = cartesian_to_polar(vertex_modelspace);
 	
 	//vec3 vert_dtheta = polar_to_cartesian(vert_polar + vec3(0, step, 0));
-	vec3 vert_dtheta = vec3(rotate(dvec3(0, 1, 0)) * vertex_modelspace);
+	vec3 vert_dtheta = vec3(rotate(vec3(0, 1, 0)) * vertex_modelspace);
 	float height_dtheta = get_height(vert_dtheta);
 
 	//vec3 vert_dphi = polar_to_cartesian(vert_polar + vec3(0, 0, step));
