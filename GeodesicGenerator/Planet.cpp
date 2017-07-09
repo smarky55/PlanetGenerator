@@ -167,6 +167,9 @@ Planet::Planet(size_t seed = 0, unsigned depth) : mesh(seed) {
 	glGenBuffers(1, &AtmoIndBuffer);
 
 	genIndices(depth);
+
+	glDisable(GL_BLEND);
+
 	sCubeMapProps textureProps;
 	textureProps.texture = &planetTexture;
 	textureProps.vertex_file_path = "cube_vertex.glsl";
@@ -189,6 +192,8 @@ Planet::Planet(size_t seed = 0, unsigned depth) : mesh(seed) {
 	textureProps.internal_format = GL_R8;
 	textureProps.format = GL_RED;
 	genTexture(textureProps);
+
+	glEnable(GL_BLEND);
 }
 
 
@@ -207,9 +212,6 @@ Planet::~Planet() {
 
 void Planet::draw(GLuint programID, Camera* camera) {
 	glUseProgram(programID);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	//glm::rotate(-acos(glm::dot(Vertices[0], glm::vec3(0,1,0))), glm::vec3(1,0,0)) *
 	glm::mat4 model = glm::translate(glm::vec3(0, 0, 0)) *glm::rotate(glm::radians(-23.5f), glm::vec3(1, 0, 0)) *glm::rotate(((float)glfwGetTime() * 2 * glm::pi<float>()) / 60, glm::vec3(0, 1, 0));
@@ -284,7 +286,7 @@ void Planet::draw(GLuint programID, Camera* camera) {
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer);
 
-	glm::mat4 cloudModel = model * glm::scale(glm::vec3(1.01));
+	glm::mat4 cloudModel = model * glm::rotate(-((float)glfwGetTime() * 2 * glm::pi<float>()) / 600, glm::vec3(0, 1, 0)) * glm::scale(glm::vec3(1.01));
 	MVP = projection * view * cloudModel;
 	glUniformMatrix4fv(mvpID, 1, GL_FALSE, &MVP[0][0]);
 	glUniformMatrix4fv(mID, 1, GL_FALSE, &cloudModel[0][0]);
@@ -296,7 +298,6 @@ void Planet::draw(GLuint programID, Camera* camera) {
 	//glDisableVertexAttribArray(normPosID);
 
 	glUseProgram(0);
-	glDisable(GL_BLEND);
 }
 
 
