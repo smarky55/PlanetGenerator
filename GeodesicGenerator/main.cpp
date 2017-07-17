@@ -226,6 +226,8 @@ int main() {
 	glDepthFunc(GL_LESS);
 	glEnable(GL_CULL_FACE);
 	
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
