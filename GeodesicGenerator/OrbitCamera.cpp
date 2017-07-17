@@ -28,17 +28,25 @@ void OrbitCamera::update() {
 	float deltaTime = float(currentTime - lastTime);
 	lastTime = currentTime;
 
+	
 	int width, height;
 	glfwGetWindowSize(Window, &width, &height);
-
+	static double lastX = -1, lastY = -1;
+	if(lastX == -1 || lastY == -1) {
+		glfwGetCursorPos(Window, &lastX, &lastY);
+	}
 	double xPos, yPos;
 	glfwGetCursorPos(Window, &xPos, &yPos);
-	glfwSetCursorPos(Window, width / 2., height / 2.);
-	
-	HorizontalAngle += MouseSpeed * glm::min((Distance - 1.0)/2, 1.0) * float(glm::floor(width / 2.0) - xPos);
-	HorizontalAngle = std::fmod(HorizontalAngle, 3.14f * 2);
-	VerticalAngle += MouseSpeed * glm::min((Distance - 1.0) / 2, 1.0) * float(glm::floor(height / 2.0) - yPos);
-	VerticalAngle = glm::clamp(VerticalAngle, -1.57f, 1.57f);
+	//glfwSetCursorPos(Window, width / 2., height / 2.);
+	double dx = lastX - xPos;
+	double dy = lastY - yPos;
+
+	if(glfwGetMouseButton(Window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+		HorizontalAngle += MouseSpeed * glm::min((Distance - 1.0) / 2, 1.0) * float(dx);// glm::floor(width / 2.0) - xPos);
+		HorizontalAngle = std::fmod(HorizontalAngle, 3.14f * 2);
+		VerticalAngle += MouseSpeed * glm::min((Distance - 1.0) / 2, 1.0) * float(dy);// glm::floor(height / 2.0) - yPos);
+		VerticalAngle = glm::clamp(VerticalAngle, -1.57f, 1.57f);
+	}
 
 	glm::vec3 up = glm::vec3(0, 1, 0);
 
@@ -46,7 +54,11 @@ void OrbitCamera::update() {
 
 	View = glm::lookAt(Position, Center, up);
 
-	Projection = glm::perspective(FoV, float(width)/float(height), 0.1f, 100.0f);
+	Projection = glm::perspective(FoV, float(width) / float(height), 0.1f, 100.0f);
+	
+
+	lastX = xPos;
+	lastY = yPos;
 }
 
 
