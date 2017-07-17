@@ -122,7 +122,8 @@ xcopy /Y "$(ProjectDir)*.glsl" "$(TargetDir)"</Command>
     </Link>
     <PostBuildEvent>
       <Command>del "$(TargetDir)*.glsl"
-xcopy /Y "$(ProjectDir)*.glsl" "$(TargetDir)"</Command>
+xcopy /Y "$(ProjectDir)*.glsl" "$(TargetDir)"
+xcopy /Y "$(VisualStudioDir)\Libraries\glew-2.0.0\bin\Release\x64\glew32.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -216,6 +217,10 @@ xcopy /Y "$(ProjectDir)*.glsl" "$(TargetDir)"</Command>
   </ItemGroup>
   <ItemGroup>
     <None Include="classicnoise3D.glsl" />
+    <None Include="cloud_fragment.glsl">
+      <SubType>
+      </SubType>
+    </None>
     <None Include="constants.glsl">
       <SubType>
       </SubType>

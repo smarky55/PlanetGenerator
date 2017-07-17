@@ -130,7 +130,8 @@ void Planet::genTexture(sCubeMapProps properties) {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glDeleteFramebuffers(1, &frameBuffer);
 	glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
-	glDeleteProgram(programID);
+	glUseProgram(0);
+	//glDeleteProgram(programID);
 }
 
 Planet::Planet(size_t seed = 0, unsigned depth) : mesh(seed) {
@@ -147,21 +148,7 @@ Planet::Planet(size_t seed = 0, unsigned depth) : mesh(seed) {
 		Vertices[i] = rotation * glm::vec4(Vertices[i], 1);
 	}
 
-	/*std::vector<glm::vec3> Vertices = {
-		glm::vec3(1,1,1),glm::vec3(1,1,-1),glm::vec3(1,-1,1),glm::vec3(1,-1,-1),
-		glm::vec3(-1,1,1),glm::vec3(-1,1,-1),glm::vec3(-1,-1,1),glm::vec3(-1,-1,-1)
-	};
-	std::vector<unsigned> inds = {
-		0,1,4,4,1,5,
-		3,2,6,3,6,7,
-		0,2,1,2,3,1,
-		4,5,6,7,6,5,
-		0,4,2,2,4,6,
-		1,3,5,3,7,5
-	};
-	for(size_t i = 0; i < Vertices.size(); i++) {
-		Vertices[i] = glm::normalize(Vertices[i]);
-	}*/
+	
 	Seed = seed;
 
 	for each (glm::vec3 vert in Vertices) {
@@ -180,16 +167,24 @@ Planet::Planet(size_t seed = 0, unsigned depth) : mesh(seed) {
 	glGenBuffers(1, &AtmoIndBuffer);
 
 	genIndices(depth);
+
+	glDisable(GL_BLEND);
+
 	sCubeMapProps textureProps;
 	textureProps.texture = &planetTexture;
 	textureProps.vertex_file_path = "cube_vertex.glsl";
 	textureProps.fragment_file_path = "cube_fragment.glsl";
 	genTexture(textureProps);
 
+	textureProps.texture = &cloudMap;
+	textureProps.fragment_file_path = "cloud_fragment.glsl";
+	genTexture(textureProps);
+
 	textureProps.texture = &normalMap;
 	textureProps.fragment_file_path = "normal_fragment.glsl";
 	textureProps.internal_format = GL_RGB32F;
 	textureProps.format = GL_RGB;
+	textureProps.texture_size = 512;
 	genTexture(textureProps);
 
 	textureProps.texture = &heightMap;
@@ -197,6 +192,8 @@ Planet::Planet(size_t seed = 0, unsigned depth) : mesh(seed) {
 	textureProps.internal_format = GL_R8;
 	textureProps.format = GL_RED;
 	genTexture(textureProps);
+
+	glEnable(GL_BLEND);
 }
 
 
@@ -210,9 +207,7 @@ Planet::~Planet() {
 	glDeleteBuffers(1, &IndexBuffer);
 	glDeleteBuffers(1, &AtmoIndBuffer);
 
-	glDeleteTextures(1, &planetTexture);
-	glDeleteTextures(1, &normalMap);
-	glDeleteTextures(1, &heightMap);
+	glDeleteTextures(4, textures);
 }
 
 void Planet::draw(GLuint programID, Camera* camera) {
@@ -225,20 +220,21 @@ void Planet::draw(GLuint programID, Camera* camera) {
 	glm::mat4 MVP = projection * view * model;
 	Model = model;
 
-	GLuint vertPosID, mvpID, textureID, normalMapID;
+	GLuint vertPosID, mvpID, textureID, normalMapID, cloudMapID;
 	vertPosID = glGetAttribLocation(programID, "vertex_position");
 	mvpID = glGetUniformLocation(programID, "MVP");
 	textureID = glGetUniformLocation(programID, "cube_texture");
 	normalMapID = glGetUniformLocation(programID, "normal_map");
+	cloudMapID = glGetUniformLocation(programID, "cloud_map");
 
-	GLuint normPosID, mID, lightDirID, lightColID, lightPowID, camPosID, isAtmosID, seedID;
+	GLuint normPosID, mID, lightDirID, lightColID, lightPowID, camPosID, stateId, seedID;
 	//normPosID = glGetAttribLocation(programID, "vertex_normal");
 	mID = glGetUniformLocation(programID, "M");
 	lightDirID = glGetUniformLocation(programID, "light_direction");
 	lightColID = glGetUniformLocation(programID, "light_colour");
 	lightPowID = glGetUniformLocation(programID, "light_power");
 	camPosID = glGetUniformLocation(programID, "camera_position");
-	isAtmosID = glGetUniformLocation(programID, "isAtmos");
+	stateId = glGetUniformLocation(programID, "state");
 	seedID = glGetUniformLocation(programID, "Seed");
 
 	glUniformMatrix4fv(mvpID, 1, GL_FALSE, &MVP[0][0]);
@@ -251,7 +247,7 @@ void Planet::draw(GLuint programID, Camera* camera) {
 	glUniform3fv(lightColID, 1, &lightColour[0]);
 	glUniform1f(lightPowID, lightPower);
 	glUniform3fv(camPosID, 1, &(camera->getPosition())[0]);
-	glUniform1i(isAtmosID, 0);
+	glUniform1i(stateId, 0);
 	glUniform1i(seedID, Seed);
 
 	glUniform1i(textureID, 0);
@@ -261,6 +257,10 @@ void Planet::draw(GLuint programID, Camera* camera) {
 	glUniform1i(normalMapID, 1);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, normalMap);
+
+	glUniform1i(cloudMapID, 2);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, cloudMap);
 
 	glEnableVertexAttribArray(vertPosID);
 	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
@@ -276,16 +276,28 @@ void Planet::draw(GLuint programID, Camera* camera) {
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, AtmoIndBuffer);
 
-	model = model * glm::scale(glm::vec3(1.1));
-	MVP = projection * view * model;
+	glm::mat4 atmoModel = model * glm::scale(glm::vec3(1.1));
+	MVP = projection * view * atmoModel;
 	glUniformMatrix4fv(mvpID, 1, GL_FALSE, &MVP[0][0]);
-	glUniformMatrix4fv(mID, 1, GL_FALSE, &model[0][0]);
-	glUniform1i(isAtmosID, 1);
+	glUniformMatrix4fv(mID, 1, GL_FALSE, &atmoModel[0][0]);
+	glUniform1i(stateId, 1);
 
 	glDrawElements(GL_TRIANGLES, AtmoIndices.size(), GL_UNSIGNED_INT, nullptr);
 
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBuffer);
+
+	glm::mat4 cloudModel = model * glm::rotate(-((float)glfwGetTime() * 2 * glm::pi<float>()) / 600, glm::vec3(0, 1, 0)) * glm::scale(glm::vec3(1.01));
+	MVP = projection * view * cloudModel;
+	glUniformMatrix4fv(mvpID, 1, GL_FALSE, &MVP[0][0]);
+	glUniformMatrix4fv(mID, 1, GL_FALSE, &cloudModel[0][0]);
+	glUniform1i(stateId, 2);
+
+	glDrawElements(GL_TRIANGLES, Indices.size(), GL_UNSIGNED_INT, nullptr);
+
 	glDisableVertexAttribArray(vertPosID);
 	//glDisableVertexAttribArray(normPosID);
+
+	glUseProgram(0);
 }
 
 
