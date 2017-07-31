@@ -4,7 +4,6 @@ shader{
 	constants.glsl
 	cube_fragment.glsl
 	cube_vertex.glsl
-	
 	height_fragment.glsl
 	normals_geometry.glsl
 	normal_fragment.glsl

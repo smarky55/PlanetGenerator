@@ -81,6 +81,8 @@ def package(archive, tree):
 			continue
 		# raw_input()
 		# print p1
+
+
 folder_id = pp.Word(pp.alphanums+'_')
 file_id = pp.Combine(pp.Word(pp.alphanums+'_') + '.' + pp.Word(pp.alphanums))
 path = pp.Combine(pp.ZeroOrMore(folder_id+ '/') + file_id)
@@ -94,8 +96,8 @@ folder << folder_id + LBR + block('block') + RBR
 
 with open(sys.argv[2], 'wb') as pack_file, open(sys.argv[1]) as manifest:
 	man = manifest.read()
-	match = folder.searchString(man)[0]
-	# print match
+	match = block.searchString(man)[0][0]
+	print match
 	# for a,b in zip(match, match[1:]):
 		# print a,b
 	tree = org(match)
