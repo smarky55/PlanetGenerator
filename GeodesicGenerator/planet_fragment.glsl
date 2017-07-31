@@ -63,7 +63,7 @@ void main() {
 		vec4 f_colour;
 		vec3 normal_worldspace;
 
-		// switch texture lookup based on state TODO: bind cloud texture instead of planet
+		// switch texture lookup based on state
 		if(state == 0) {
 			f_colour = texture(cube_texture, vertex_modelspace);
 			normal_worldspace = normalize(M * vec4(texture(normal_map, vertex_modelspace).xyz, 0)).xyz;
