@@ -71,15 +71,19 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <CustomBuildAfterTargets>Build</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <CustomBuildAfterTargets>Build</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <CustomBuildAfterTargets>Build</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <CustomBuildAfterTargets>Build</CustomBuildAfterTargets>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -104,6 +108,12 @@ xcopy /Y "$(ProjectDir)*.glsl" "$(TargetDir)"</Command>
       <Command>
       </Command>
     </PreBuildEvent>
+    <CustomBuildStep>
+      <Command>python .\package.py manifest.txt package.arx
+xcopy /Y "$(ProjectDir)package.arx" "$(TargetDir)"</Command>
+      <Outputs>a.txt</Outputs>
+      <Message>Build asset archive and copy to build destination</Message>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -129,6 +139,12 @@ xcopy /Y "$(VisualStudioDir)\Libraries\glew-2.0.0\bin\Release\x64\glew32.dll" "$
       <Command>
       </Command>
     </PreBuildEvent>
+    <CustomBuildStep>
+      <Command>python .\package.py manifest.txt package.arx
+xcopy /Y "$(ProjectDir)package.arx" "$(TargetDir)"</Command>
+      <Message>Build asset archive and copy to build destination</Message>
+      <Outputs>a.txt</Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -157,6 +173,12 @@ xcopy /Y "$(ProjectDir)*.glsl" "$(TargetDir)"</Command>
       <Command>
       </Command>
     </PreBuildEvent>
+    <CustomBuildStep>
+      <Command>python .\package.py manifest.txt package.arx
+xcopy /Y "$(ProjectDir)package.arx" "$(TargetDir)"</Command>
+      <Outputs>a.txt</Outputs>
+      <Message>Build asset archive and copy to build destination</Message>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -185,9 +207,15 @@ xcopy /Y "$(ProjectDir)*.glsl" "$(TargetDir)"</Command>
       <Command>
       </Command>
     </PreBuildEvent>
+    <CustomBuildStep>
+      <Command>python .\package.py manifest.txt package.arx
+xcopy /Y "$(ProjectDir)package.arx" "$(TargetDir)"</Command>
+      <Message>Build asset archive and copy to build destination</Message>
+      <Outputs>a.txt</Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AssetLoader.cpp" />
+    <ClCompile Include="ArxLoader.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="controls.cpp" />
     <ClCompile Include="Face.cpp" />
@@ -201,7 +229,7 @@ xcopy /Y "$(ProjectDir)*.glsl" "$(TargetDir)"</Command>
     <ClCompile Include="xxhash.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AssetLoader.h" />
+    <ClInclude Include="ArxLoader.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="controls.h" />
     <ClInclude Include="Face.h" />
@@ -247,6 +275,7 @@ xcopy /Y "$(ProjectDir)*.glsl" "$(TargetDir)"</Command>
       <SubType>
       </SubType>
     </None>
+    <None Include="package.py" />
     <None Include="passthrough_fragment.glsl">
       <SubType>
       </SubType>
@@ -264,6 +293,9 @@ xcopy /Y "$(ProjectDir)*.glsl" "$(TargetDir)"</Command>
       </SubType>
     </None>
     <None Include="scattering.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="manifest.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
