@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <regex>
 
 class ArxLoader {
 	std::ifstream arx;
@@ -10,6 +11,6 @@ public:
 	ArxLoader(const char * arx_path);
 	~ArxLoader();
 
-	void getFile(const char * path, const char * data, unsigned * size);
+	void getFile(const char * path, char * &data, unsigned &size, unsigned location = 0, unsigned length = 0);
 };
 

@@ -35,7 +35,7 @@ def org(matchlist):
 def arx(archive, tree):
     archive.write('ARX' + NUL * 3)
     length = len(tree)-1 + len(tree['.']) # Length of archive base directory
-    archive.write(struct.pack('ii', 0x10, length * 64 + 3))
+    archive.write(struct.pack('II', 0x10, length * 64 + 4))
     archive.seek(0x10)
     package(archive, tree)
     
@@ -57,22 +57,23 @@ def package(archive, tree):
     archive.write('DIR')
     length = len(tree)-1 + len(tree['.'])
     p1 = archive.tell()
-    expand(archive,  64 * length)
+    expand(archive,  64 * length + 1)
 
     for path in tree['.']:
         f = item(path)
-        line = struct.pack('ii', get_end(archive), len(f) + 3) + ('{:\00<56.56}').format(f.name)
+        line = struct.pack('II', get_end(archive), len(f) + 4) + ('{:\00<56.56}').format(f.name)
         archive.write(line)
         p1 = archive.tell()
         archive.seek(0,2)
         archive.write('FIL')
         archive.write(f.data)
+        archive.write(NUL)
         archive.seek(p1)
         # raw_input()
         # print p1
     for key, value in tree.items():
         if key != '.':
-            line = struct.pack('ii', get_end(archive), (len(value)-1 + len(value['.'])) * 64 + 3) + ('{0:\00<56.56}').format(key)
+            line = struct.pack('II', get_end(archive), (len(value)-1 + len(value['.'])) * 64 + 4) + ('{0:\00<56.56}').format(key)
             archive.write(line)
             p1 = archive.tell()
             archive.seek(0,2)
@@ -82,6 +83,7 @@ def package(archive, tree):
             continue
         # raw_input()
         # print p1
+    archive.write(NUL)
 
 
 folder_id = pp.Word(pp.alphanums+'_')

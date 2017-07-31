@@ -16,6 +16,7 @@
 #include "shaders.h"
 #include "Planet.h"
 #include "OrbitCamera.h"
+#include "ArxLoader.h"
 
 #define WINDOWS_APP
 
@@ -170,6 +171,12 @@ INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT) {
 #else 
 int main() {
 #endif // WINDOWS_APP
+
+	ArxLoader archive("package.arx");
+	char * buf;
+	unsigned bufsize;
+	archive.getFile("shader:constants.glsl", buf, bufsize);
+
 	if(!glfwInit()) {
 		throw std::runtime_error("Failed to init GLFW!");
 		return EXIT_FAILURE;
