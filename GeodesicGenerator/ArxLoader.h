@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <regex>
 
 class ArxLoader {
@@ -12,5 +13,6 @@ public:
 	~ArxLoader();
 
 	void getFile(const char * path, char * &data, unsigned &size, unsigned location = 0, unsigned length = 0);
+	void getStream(const char * path, std::istream * &stream);
 };
 

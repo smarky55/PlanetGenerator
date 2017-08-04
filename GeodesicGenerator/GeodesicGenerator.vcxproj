@@ -76,6 +76,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <CustomBuildAfterTargets>Build</CustomBuildAfterTargets>
+    <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -101,8 +102,7 @@
       <AdditionalDependencies>opengl32.lib;glew32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>del "$(TargetDir)*.glsl"
-xcopy /Y "$(ProjectDir)*.glsl" "$(TargetDir)"</Command>
+      <Command>xcopy /Y "$(VisualStudioDir)\Libraries\glew-2.0.0\bin\Release\Win32\glew32.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -131,9 +131,7 @@ xcopy /Y "$(ProjectDir)package.arx" "$(TargetDir)"</Command>
       <AdditionalDependencies>opengl32.lib;glew32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>del "$(TargetDir)*.glsl"
-xcopy /Y "$(ProjectDir)*.glsl" "$(TargetDir)"
-xcopy /Y "$(VisualStudioDir)\Libraries\glew-2.0.0\bin\Release\x64\glew32.dll" "$(TargetDir)"</Command>
+      <Command>xcopy /Y "$(VisualStudioDir)\Libraries\glew-2.0.0\bin\Release\x64\glew32.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -166,8 +164,7 @@ xcopy /Y "$(ProjectDir)package.arx" "$(TargetDir)"</Command>
       <AdditionalDependencies>opengl32.lib;glew32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>del "$(TargetDir)*.glsl"
-xcopy /Y "$(ProjectDir)*.glsl" "$(TargetDir)"</Command>
+      <Command>xcopy /Y "$(VisualStudioDir)\Libraries\glew-2.0.0\bin\Release\Win32\glew32.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -200,8 +197,7 @@ xcopy /Y "$(ProjectDir)package.arx" "$(TargetDir)"</Command>
       <AdditionalDependencies>opengl32.lib;glew32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>del "$(TargetDir)*.glsl"
-xcopy /Y "$(ProjectDir)*.glsl" "$(TargetDir)"</Command>
+      <Command>xcopy /Y "$(VisualStudioDir)\Libraries\glew-2.0.0\bin\Release\x64\glew32.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>

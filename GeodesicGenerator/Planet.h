@@ -8,6 +8,7 @@
 #include "Camera.h"
 #include "FaceTree.h"
 #include "shaders.h"
+#include "ArxLoader.h"
 
 struct sCubeMapProps {
 	GLuint *texture;
@@ -19,6 +20,7 @@ struct sCubeMapProps {
 };
 
 class Planet{
+	ArxLoader * Archive;
 	GLuint VertexBuffer, ColourBuffer, NormalBuffer, IndexBuffer, AtmoIndBuffer;
 	size_t Seed;
 	std::vector<FaceTree*> Faces;
@@ -36,7 +38,7 @@ class Planet{
 	void genIndices(unsigned depth);
 	void genTexture(sCubeMapProps properties);
 public:
-	Planet(size_t seed, unsigned depth=0);
+	Planet(size_t seed, unsigned depth = 0, ArxLoader * archive = nullptr);
 	~Planet();
 
 	Mesh mesh;

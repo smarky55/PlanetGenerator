@@ -144,6 +144,7 @@ void APIENTRY debugMessage(GLenum source, GLenum type, GLuint id, GLenum severit
 
 Camera* camera;
 Planet* geo;
+ArxLoader* archive;
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
@@ -152,7 +153,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		delete geo;
 		int seed = rand();
 		std::cout << seed << std::endl;
-		geo = new Planet(seed, 6);
+		geo = new Planet(seed, 6, archive);
 	}
 }
 
@@ -172,10 +173,7 @@ INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT) {
 int main() {
 #endif // WINDOWS_APP
 
-	ArxLoader archive("package.arx");
-	char * buf;
-	unsigned bufsize;
-	archive.getFile("shader:constants.glsl", buf, bufsize);
+	archive = new ArxLoader("package.arx");
 
 	if(!glfwInit()) {
 		throw std::runtime_error("Failed to init GLFW!");
@@ -239,7 +237,7 @@ int main() {
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
-	ShaderProgram mainProgram = ShaderProgram();
+	ShaderProgram mainProgram = ShaderProgram(archive);
 	mainProgram.addStage(GL_VERTEX_SHADER, "planet_vertex.glsl");
 	mainProgram.addStage(GL_FRAGMENT_SHADER, "planet_fragment.glsl");
 	mainProgram.linkProgram();
@@ -279,7 +277,7 @@ int main() {
 		3,5,7
 	};*/
 
-	geo = new Planet(76, 4);
+	geo = new Planet(76, 4, archive);
 
 	OrbitCamera cam = OrbitCamera(glm::vec3(0));
 	camera = &cam;
