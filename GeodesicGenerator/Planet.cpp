@@ -66,7 +66,7 @@ void Planet::genTexture(sCubeMapProps properties) {
 		}
 	}
 
-	ShaderProgram program = ShaderProgram();
+	ShaderProgram program = ShaderProgram(Archive);
 	program.addStage(GL_VERTEX_SHADER, properties.vertex_file_path);
 	program.addStage(GL_FRAGMENT_SHADER, properties.fragment_file_path);
 	program.linkProgram();
@@ -134,7 +134,7 @@ void Planet::genTexture(sCubeMapProps properties) {
 	//glDeleteProgram(programID);
 }
 
-Planet::Planet(size_t seed = 0, unsigned depth) : mesh(seed) {
+Planet::Planet(size_t seed = 0, unsigned depth, ArxLoader * archive) : mesh(seed) {
 	const double ic_a = 0.52573111211913360602566908484789;
 	const double ic_b = 0.85065080835203993218154049706302;
 	std::vector<glm::vec3> Vertices = {glm::vec3(0, ic_a, ic_b), glm::vec3(0, ic_a, -ic_b), glm::vec3(0, -ic_a, ic_b), glm::vec3(0, -ic_a, -ic_b),
@@ -147,7 +147,7 @@ Planet::Planet(size_t seed = 0, unsigned depth) : mesh(seed) {
 	for(size_t i = 0; i < Vertices.size(); i++) {
 		Vertices[i] = rotation * glm::vec4(Vertices[i], 1);
 	}
-
+	Archive = archive;
 	
 	Seed = seed;
 
@@ -303,7 +303,7 @@ void Planet::draw(GLuint programID, Camera* camera) {
 
 #ifdef _DEBUG
 void Planet::drawNormals(Camera * camera) {
-	static ShaderProgram program = ShaderProgram();
+	static ShaderProgram program = ShaderProgram(Archive);
 	if(!program.isLinked()) {
 		program.addStage(GL_VERTEX_SHADER, "passthrough_vertex.glsl");
 		program.addStage(GL_GEOMETRY_SHADER, "normals_geometry.glsl");

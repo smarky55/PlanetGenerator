@@ -27,6 +27,32 @@ void ShaderProgram::loadFile(const char * file_path, std::string & code, std::ve
 	}
 }
 
+void ShaderProgram::loadFile(const char * asset_path, ArxLoader * archive, std::string & code, std::vector<std::string>& lines) {
+	std::istream * stream;
+	archive->getStream(asset_path, stream);
+	code = "";
+	std::string line = "";
+	while(getline(*stream, line)) {
+		size_t include_pos = line.find("#include");
+		if(include_pos != std::string::npos) {
+			size_t gt_pos, lt_pos;
+			gt_pos = line.find("<", include_pos + 8);
+			lt_pos = line.find(">", gt_pos);
+			std::vector<std::string> includeLines;
+			loadFile(line.substr(gt_pos + 1, lt_pos - (gt_pos + 1)).c_str(), archive, line, includeLines);
+			code += line;
+			lines.insert(lines.end(), includeLines.begin(), includeLines.end());
+		} else {
+			//std::cout << line << std::endl;
+			code += line + "\n";
+			lines.push_back(line);
+		}
+	}
+	delete stream;
+}
+
+
+
 const char * ShaderProgram::stageName(GLenum stage) {
 	switch(stage) {
 	case GL_VERTEX_SHADER:
@@ -63,6 +89,11 @@ ShaderProgram::ShaderProgram() {
 	programID = glCreateProgram();
 }
 
+ShaderProgram::ShaderProgram(ArxLoader * archive) {
+	programID = glCreateProgram();
+	Archive = archive;
+}
+
 ShaderProgram::~ShaderProgram() {
 	glDeleteProgram(programID);
 }
@@ -73,7 +104,11 @@ void ShaderProgram::addStage(GLenum stage, const char * file_path) {
 
 		std::string shaderCode;
 		std::vector<std::string> shaderLines;
-		loadFile(file_path, shaderCode, shaderLines);
+		if(Archive == nullptr) {
+			loadFile(file_path, shaderCode, shaderLines);
+		} else {
+			loadFile(file_path, Archive, shaderCode, shaderLines);
+		}
 
 		const char * source = shaderCode.c_str();
 		glShaderSource(shaderID, 1, &source, NULL);
